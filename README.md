@@ -31,6 +31,8 @@ In ConwayPainter, users will be able to:
 
 The app will consist of a single screen with the universe canvas, start/top/reset controls, a propagation speed slider, a stamp/brush palette, nav links to Github and LinkedIn, and an About modal.
 
+### [Wireframes](https://github.com/roblim/conwaypainter/blob/master/conway_painter_wireframe.png)
+
 ## Architecture an Technologies
 
 This project will be implemented with the following technologies:
