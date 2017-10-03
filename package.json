@@ -1,0 +1,30 @@
+{
+  "name": "conway_painter",
+  "version": "1.0.0",
+  "description": "---",
+  "main": "index.js",
+  "scripts": {
+    "webpack": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roblim/conwaypainter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/roblim/conwaypainter/issues"
+  },
+  "homepage": "https://github.com/roblim/conwaypainter#readme",
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "p5": "^0.5.14"
+  },
+  "devDependencies": {
+    "webpack": "^3.6.0"
+  }
+}
