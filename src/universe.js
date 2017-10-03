@@ -1,14 +1,19 @@
 import Cell from './cell';
 
 class Universe {
-  constructor(width, height, hexSize, sketch) {
+  constructor(width, height, cellSize, sketch) {
     this.sketch = sketch;
     this.width = width;
     this.height = height;
-    this.size = hexSize;
-    this.gridWidth = (width / hexSize) * 0.67;
-    this.gridHeight = (height / hexSize) * 0.5;
+    this.cellSize = cellSize;
+    this.gridWidth = (width / cellSize) * 0.67;
+    this.gridHeight = (height / cellSize) * 0.5;
     this.grid = this.generateGrid();
+    this.renderCycle = this.renderCycle.bind(this);
+  }
+
+  getCell(q, s) {
+    return this.grid[s][q + Math.floor(s / 2)];
   }
 
   generateGrid() {
@@ -30,7 +35,7 @@ class Universe {
       r = rStart;
 
       for (let j = 0; j < this.gridWidth; j++) {
-        tempRow.push(new Cell(q, r));
+        tempRow.push(new Cell(q, r, this));
         q++;
         r--;
       };
@@ -40,39 +45,60 @@ class Universe {
     return grid;
   }
 
-  hexToPixel(hex) {
-    const x = (Math.sqrt(3) * hex.coord.q + Math.sqrt(3) / 2 * hex.coord.s) * this.size;
-    const y = (3 / 2) * hex.coord.s * this.size;
+  hexToPixel(cell) {
+    const x = (Math.sqrt(3) * cell.coord.q + Math.sqrt(3) / 2 * cell.coord.s) * this.cellSize;
+    const y = (3 / 2) * cell.coord.s * this.cellSize;
     const pixelCoord = { x: x, y: y };
     return pixelCoord;
   }
 
-  plotHex(hex) {
-    const pCoord = this.hexToPixel(hex);
+  plotCell(cell) {
+    const pCoord = this.hexToPixel(cell);
     const x = pCoord.x;
     const y = pCoord.y;
     var angle = (Math.PI * 2) / 6;
-    if (hex.alive) {
+    if (cell.alive) {
       this.sketch.fill('yellow');
     }
     this.sketch.stroke('red');
     this.sketch.beginShape();
     for (var a = (Math.PI / 6); a < (Math.PI * 2); a += angle) {
-      var sx = x + Math.cos(a) * this.size;
-      var sy = y + Math.sin(a) * this.size;
+      var sx = x + Math.cos(a) * this.cellSize;
+      var sy = y + Math.sin(a) * this.cellSize;
       this.sketch.vertex(sx, sy);
     }
     this.sketch.endShape(this.sketch.CLOSE);
   }
 
   renderGrid() {
-      this.grid.forEach(q => {
+    this.grid.forEach(q => {
       q.forEach(s => {
         this.sketch.push();
-        this.plotHex(s);
+        this.plotCell(s);
         this.sketch.pop();
       });
     });
+  }
+
+  generationCycle() {
+    this.grid.forEach((q, qIdx) => {
+      if (qIdx < 2) { return;}
+      if (qIdx > (this.gridHeight - 2)) { return; }
+      q.forEach((s, sIdx) => {
+        if (sIdx < 2) { return;}
+        if (sIdx > (this.gridWidth - 2)) { return; }
+        s.updateStatus();
+      });
+    });
+  }
+
+  renderCycle() {
+    this.generationCycle();
+    this.renderGrid();
+  }
+
+  bigBang() {
+    setInterval(this.renderCycle, 5000);
   }
 }
 
