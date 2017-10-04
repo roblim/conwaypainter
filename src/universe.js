@@ -1,5 +1,11 @@
 import Cell from './cell';
 
+const CONSTANTS = {
+  hexInAngle: (Math.PI * 2) / 6,
+  hexStartAngle: (Math.PI / 6),
+  twoPI: Math.PI * 2
+};
+
 class Universe {
   constructor(width, height, cellSize, sketch) {
     this.sketch = sketch;
@@ -9,6 +15,7 @@ class Universe {
     this.gridWidth = Math.floor((width / cellSize) * 0.67);
     this.gridHeight = Math.floor((height / cellSize) * 0.66);
     this.grid = this.generateGrid();
+    this.tempGrid = this.generateGrid();
   }
 
   resetGridRandom() {
@@ -50,7 +57,6 @@ class Universe {
   }
 
   plotCell(cell) {
-    var angle = (Math.PI * 2) / 6;
     if (cell.alive === 1) {
       this.sketch.fill('yellow');
     } else if (cell.alive === 2) {
@@ -58,7 +64,9 @@ class Universe {
     }
     // this.sketch.stroke('red');
     this.sketch.beginShape();
-    for (var a = (Math.PI / 6); a < (Math.PI * 2); a += angle) {
+    for (var a = CONSTANTS.hexStartAngle;
+                  a < CONSTANTS.twoPI;
+                  a += CONSTANTS.hexInAngle) {
       var sx = cell.pixelCoord.x + Math.cos(a) * this.cellSize;
       var sy = cell.pixelCoord.y + Math.sin(a) * this.cellSize;
       this.sketch.vertex(sx, sy);
@@ -77,10 +85,6 @@ class Universe {
   }
 
   generationCycle() {
-    const tempGrid = new Array(this.gridHeight)
-    for (let i = 0; i < tempGrid.length; i++) {
-      tempGrid[i] = new Array(this.gridWidth);
-    }
     this.grid.forEach((q, qIdx) => {
       q.forEach((s, sIdx) => {
         if (qIdx < 1 ||
@@ -88,14 +92,13 @@ class Universe {
             sIdx < 1 ||
             sIdx > (this.gridWidth - 2)
             ) {
-              tempGrid[qIdx][sIdx] = new Cell(s.coord.q, s.coord.r, s.coord.s, this, s.alive);
+              this.tempGrid[qIdx][sIdx].alive = 0;
             } else {
-              tempGrid[qIdx][sIdx] = s.newStatus();
-
+              this.tempGrid[qIdx][sIdx].alive = s.newStatus();
             }
       });
     });
-    this.grid = tempGrid;
+    this.grid = this.tempGrid;
   }
 
 }

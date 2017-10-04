@@ -8,11 +8,12 @@ const NEIGHBORS = [
 ];
 
 class Cell {
-  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3)  )) {
+  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3) * 0.35 )) {
     this.coord = { q, r, s };
     this.alive = alive;
     this.universe = universe;
     this.pixelCoord = this.hexToPixel(q, s, universe.cellSize);
+    this.neighborCoords = this.getNeighborCoords(q, s);
   }
 
   hexToPixel(q, s, size) {
@@ -28,8 +29,7 @@ class Cell {
   }
 
   getHeadcount() {
-    const neighbors = this.getNeighborCoords();
-    const headcount = neighbors.reduce((accum, coord) => {
+    const headcount = this.neighborCoords.reduce((accum, coord) => {
       return accum + this.getStatus(coord[0], coord[1]);
     }, 0);
     return headcount;
@@ -84,14 +84,12 @@ class Cell {
         };
         break;
     };
-    const updatedCell = new Cell(this.coord.q, this.coord.r, this.coord.s, this.universe, newStatus);
-    return updatedCell;
+    // const updatedCell = new Cell(this.coord.q, this.coord.r, this.coord.s, this.universe, newStatus);
+    return newStatus;
   }
 
-  getNeighborCoords() {
+  getNeighborCoords(q, s) {
     const neighbors = [];
-    const q = this.coord.q;
-    const s = this.coord.s;
     NEIGHBORS.forEach(delta => {
       const coord = [q + delta[0], s + delta[1]];
       neighbors.push(coord);
