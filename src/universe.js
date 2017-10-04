@@ -6,10 +6,13 @@ class Universe {
     this.width = width;
     this.height = height;
     this.cellSize = cellSize;
-    this.gridWidth = (width / cellSize) * 0.67;
-    this.gridHeight = (height / cellSize) * 0.5;
+    this.gridWidth = Math.floor((width / cellSize) * 0.67);
+    this.gridHeight = Math.floor((height / cellSize) * 0.5);
     this.grid = this.generateGrid();
-    this.renderCycle = this.renderCycle.bind(this);
+  }
+
+  resetGridRandom() {
+    this.grid = this.generateGrid();
   }
 
   getCell(q, s) {
@@ -35,7 +38,8 @@ class Universe {
       r = rStart;
 
       for (let j = 0; j < this.gridWidth; j++) {
-        tempRow.push(new Cell(q, r, this));
+        const s = (-q - r);
+        tempRow.push(new Cell(q, r, s, this));
         q++;
         r--;
       };
@@ -45,17 +49,7 @@ class Universe {
     return grid;
   }
 
-  hexToPixel(cell) {
-    const x = (Math.sqrt(3) * cell.coord.q + Math.sqrt(3) / 2 * cell.coord.s) * this.cellSize;
-    const y = (3 / 2) * cell.coord.s * this.cellSize;
-    const pixelCoord = { x: x, y: y };
-    return pixelCoord;
-  }
-
   plotCell(cell) {
-    const pCoord = this.hexToPixel(cell);
-    const x = pCoord.x;
-    const y = pCoord.y;
     var angle = (Math.PI * 2) / 6;
     if (cell.alive) {
       this.sketch.fill('yellow');
@@ -63,8 +57,8 @@ class Universe {
     this.sketch.stroke('red');
     this.sketch.beginShape();
     for (var a = (Math.PI / 6); a < (Math.PI * 2); a += angle) {
-      var sx = x + Math.cos(a) * this.cellSize;
-      var sy = y + Math.sin(a) * this.cellSize;
+      var sx = cell.pixelCoord.x + Math.cos(a) * this.cellSize;
+      var sy = cell.pixelCoord.y + Math.sin(a) * this.cellSize;
       this.sketch.vertex(sx, sy);
     }
     this.sketch.endShape(this.sketch.CLOSE);
@@ -81,25 +75,27 @@ class Universe {
   }
 
   generationCycle() {
+    const tempGrid = new Array(this.gridHeight)
+    for (let i = 0; i < tempGrid.length; i++) {
+      tempGrid[i] = new Array(this.gridWidth);
+    }
     this.grid.forEach((q, qIdx) => {
-      if (qIdx < 2) { return;}
-      if (qIdx > (this.gridHeight - 2)) { return; }
       q.forEach((s, sIdx) => {
-        if (sIdx < 2) { return;}
-        if (sIdx > (this.gridWidth - 2)) { return; }
-        s.updateStatus();
+        if (qIdx < 2 ||
+            qIdx > (this.gridHeight - 2) ||
+            sIdx < 2 ||
+            sIdx > (this.gridWidth - 2)
+            ) {
+              tempGrid[qIdx][sIdx] = new Cell(s.coord.q, s.coord.r, s.coord.s, this, s.alive);
+            } else {
+              tempGrid[qIdx][sIdx] = s.newStatus();
+
+            }
       });
     });
+    this.grid = tempGrid;
   }
 
-  renderCycle() {
-    this.generationCycle();
-    this.renderGrid();
-  }
-
-  bigBang() {
-    setInterval(this.renderCycle, 5000);
-  }
 }
 
 export default Universe;

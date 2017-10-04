@@ -10,7 +10,6 @@ const p5Canvas = function( sketch ) {
 
   sketch.setup = function() {
     sketch.createCanvas(width, height);
-    sketch.setFrameRate(20);
   };
 
   sketch.draw = function() {
@@ -20,6 +19,10 @@ const p5Canvas = function( sketch ) {
     uni.generationCycle();
     const grid2 = uni.grid;
   };
+
+  sketch.mousePressed = function() {
+    uni.resetGridRandom();
+  }
 };
 
 var myp5 = new p5(p5Canvas, 'sketch');

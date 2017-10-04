@@ -8,10 +8,18 @@ const NEIGHBORS = [
 ];
 
 class Cell {
-  constructor(q, r, universe, alive = Math.floor((Math.random() * 2)*.53)) {
-    this.coord = { q, r, s: (-q - r) };
+  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 2)*.55 )) {
+    this.coord = { q, r, s };
     this.alive = alive;
     this.universe = universe;
+    this.pixelCoord = this.hexToPixel(q, s, universe.cellSize);
+  }
+
+  hexToPixel(q, s, size) {
+    const x = (Math.sqrt(3) * q + Math.sqrt(3) / 2 * s) * size;
+    const y = (3 / 2) * s * size;
+    const pixelCoord = { x: x, y: y };
+    return pixelCoord;
   }
 
   getStatus(q, s) {
@@ -27,40 +35,41 @@ class Cell {
     return headcount;
   }
 
-  spawn() {
-    this.alive = 1;
-  }
-
-  die() {
-    this.alive = 0;
-  }
-
-  updateStatus() {
+  newStatus() {
     const heads = this.getHeadcount();
+    let newStatus;
     switch(this.alive) {
       case 0:
-        if (heads === 2) { this.spawn(); }
+        if (heads === 2) {
+          newStatus = 1;} else {
+            newStatus = this.alive;
+          }
         break;
       case 1:
         switch(heads) {
           case 0:
-            this.die();
+            newStatus = 0;
             break;
           case 1:
-            this.die();
+            newStatus = 0;
             break;
           case 2:
-            this.die();
+            newStatus = 0;
             break;
           case 5:
-            this.die();
+            newStatus = 0;
             break;
           case 6:
-            this.die();
+            newStatus = 0;
+            break;
+          default:
+            newStatus = this.alive;
             break;
         };
         break;
     };
+    const updatedCell = new Cell(this.coord.q, this.coord.r, this.coord.s, this.universe, newStatus);
+    return updatedCell;
   }
 
   getNeighborCoords() {
