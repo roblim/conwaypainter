@@ -8,7 +8,7 @@ const NEIGHBORS = [
 ];
 
 class Cell {
-  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 2)*.55 )) {
+  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3)  )) {
     this.coord = { q, r, s };
     this.alive = alive;
     this.universe = universe;
@@ -40,30 +40,46 @@ class Cell {
     let newStatus;
     switch(this.alive) {
       case 0:
-        if (heads === 2) {
+        if (heads === 4) {
           newStatus = 1;} else {
-            newStatus = this.alive;
+            newStatus = 0;
           }
         break;
       case 1:
         switch(heads) {
-          case 0:
-            newStatus = 0;
-            break;
           case 1:
-            newStatus = 0;
+            newStatus = 2;
             break;
           case 2:
-            newStatus = 0;
+            newStatus = 2;
             break;
-          case 5:
-            newStatus = 0;
+          case 3:
+            newStatus = 2;
+            break;
+          case 4:
+            newStatus = 2;
             break;
           case 6:
-            newStatus = 0;
+            newStatus = 2;
             break;
           default:
-            newStatus = this.alive;
+            newStatus = 0;
+            break;
+          };
+        break;
+      case 2:
+        switch(heads) {
+          case 1:
+            newStatus = 2;
+            break;
+          case 2:
+            newStatus = 2;
+            break;
+          case 4:
+            newStatus = 1;
+            break;
+          default:
+            newStatus = 0;
             break;
         };
         break;

@@ -7,7 +7,7 @@ class Universe {
     this.height = height;
     this.cellSize = cellSize;
     this.gridWidth = Math.floor((width / cellSize) * 0.67);
-    this.gridHeight = Math.floor((height / cellSize) * 0.5);
+    this.gridHeight = Math.floor((height / cellSize) * 0.66);
     this.grid = this.generateGrid();
   }
 
@@ -51,10 +51,12 @@ class Universe {
 
   plotCell(cell) {
     var angle = (Math.PI * 2) / 6;
-    if (cell.alive) {
+    if (cell.alive === 1) {
       this.sketch.fill('yellow');
+    } else if (cell.alive === 2) {
+      this.sketch.fill('blue');
     }
-    this.sketch.stroke('red');
+    // this.sketch.stroke('red');
     this.sketch.beginShape();
     for (var a = (Math.PI / 6); a < (Math.PI * 2); a += angle) {
       var sx = cell.pixelCoord.x + Math.cos(a) * this.cellSize;
@@ -81,9 +83,9 @@ class Universe {
     }
     this.grid.forEach((q, qIdx) => {
       q.forEach((s, sIdx) => {
-        if (qIdx < 2 ||
+        if (qIdx < 1 ||
             qIdx > (this.gridHeight - 2) ||
-            sIdx < 2 ||
+            sIdx < 1 ||
             sIdx > (this.gridWidth - 2)
             ) {
               tempGrid[qIdx][sIdx] = new Cell(s.coord.q, s.coord.r, s.coord.s, this, s.alive);
