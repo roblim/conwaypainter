@@ -4,7 +4,7 @@ const p5Canvas = function( sketch ) {
 
   const width = sketch.windowWidth * 0.98;
   const height = sketch.windowHeight * 0.97;
-  const cellSize = 12;
+  const cellSize = 11;
 
   const uni = new Universe(width, height, cellSize, sketch);
 
@@ -14,7 +14,7 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.draw = function() {
-    sketch.background(102);
+    sketch.background('black');
     uni.renderGrid();
     uni.generationCycle();
 
@@ -26,9 +26,46 @@ const p5Canvas = function( sketch ) {
     sketch.pop();
   };
 
-  sketch.mousePressed = function() {
-    uni.resetGridRandom();
+  const state = {
+    looping: 1
   }
+
+  sketch.mousePressed = function() {
+    if (!state.looping) {
+      sketch.loop();
+      state.looping = 1;
+    }
+    uni.resetGridRandom();
+  };
+
+  sketch.keyPressed = function() {
+    switch(sketch.keyCode) {
+      case 32:
+        if (state.looping) {
+          sketch.noLoop();
+          state.looping = 0;
+        } else {
+          sketch.loop();
+          state.looping = 1;
+        }
+        break;
+      case sketch.BACKSPACE:
+        if (!state.looping) {
+          sketch.loop();
+          state.looping = 1;
+        }
+        uni.clearGrid();
+        uni.renderGrid();
+        break;
+      case sketch.ENTER:
+        if (!state.looping) {
+          sketch.loop();
+          state.looping = 1;
+        }
+        uni.resetGridRandom();
+        break;
+    };
+  };
 };
 
 var myp5 = new p5(p5Canvas, 'sketch');

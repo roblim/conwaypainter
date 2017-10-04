@@ -12,21 +12,39 @@ class Universe {
     this.width = width;
     this.height = height;
     this.cellSize = cellSize;
-    this.gridWidth = Math.floor((width / cellSize) * 0.67);
-    this.gridHeight = Math.floor((height / cellSize) * 0.66);
+    this.gridWidth = Math.floor((width / cellSize) * 0.68);
+    this.gridHeight = Math.floor((height / cellSize) * 0.7);
     this.grid = this.generateGrid();
     this.tempGrid = this.generateGrid();
+  }
+
+  pixelToHex(x, y) {
+    const q = (x * (Math.sqrt(3) / 3) - (y / 3)) / this.cellSize;
+    const s = (y * (2 / 3)) / this.cellSize;
+    return { q, s };
+  }
+
+  roundHex() {
+    
+  }
+
+  setCell(q, s, status) {
+    this.getCell(q, s).alive = status;
   }
 
   resetGridRandom() {
     this.grid = this.generateGrid();
   }
 
+  clearGrid() {
+    this.grid = this.generateGrid(0);
+  }
+
   getCell(q, s) {
     return this.grid[s][q + Math.floor(s / 2)];
   }
 
-  generateGrid() {
+  generateGrid(seed) {
     let q;
     let r;
     let qStart = 1;
@@ -46,7 +64,7 @@ class Universe {
 
       for (let j = 0; j < this.gridWidth; j++) {
         const s = (-q - r);
-        tempRow.push(new Cell(q, r, s, this));
+        tempRow.push(new Cell(q, r, s, this, seed));
         q++;
         r--;
       };
@@ -58,9 +76,9 @@ class Universe {
 
   plotCell(cell) {
     if (cell.alive === 1) {
-      this.sketch.fill('yellow');
-    } else if (cell.alive === 2) {
       this.sketch.fill('blue');
+    } else if (cell.alive === 2) {
+      this.sketch.fill('orange');
     }
     // this.sketch.stroke('red');
     this.sketch.beginShape();
@@ -75,29 +93,44 @@ class Universe {
   }
 
   renderGrid() {
-    this.grid.forEach(q => {
-      q.forEach(s => {
+    for (let i = 0; i < this.gridHeight; i++) {
+      for (let j = 0; j < this.gridWidth; j++) {
         this.sketch.push();
-        this.plotCell(s);
+        this.plotCell(this.grid[i][j]);
         this.sketch.pop();
-      });
-    });
+      };
+    }
   }
 
   generationCycle() {
-    this.grid.forEach((q, qIdx) => {
-      q.forEach((s, sIdx) => {
-        if (qIdx < 1 ||
-            qIdx > (this.gridHeight - 2) ||
-            sIdx < 1 ||
-            sIdx > (this.gridWidth - 2)
+    // this.grid.forEach((q, qIdx) => {
+    //   q.forEach((s, sIdx) => {
+    //     if (qIdx < 1 ||
+    //         qIdx > (this.gridHeight - 2) ||
+    //         sIdx < 1 ||
+    //         sIdx > (this.gridWidth - 2)
+    //         ) {
+    //           this.tempGrid[qIdx][sIdx].alive = 0;
+    //         } else {
+    //           this.tempGrid[qIdx][sIdx].alive = s.newStatus();
+    //         }
+    //   });
+    // });
+    // this.grid = this.tempGrid;
+
+    for (let i = 0; i < this.gridHeight; i++) {
+      for (let j = 0; j < this.gridWidth; j++) {
+        if (i < 1 ||
+            i > (this.gridHeight - 2) ||
+            j < 1 ||
+            j > (this.gridWidth - 2)
             ) {
-              this.tempGrid[qIdx][sIdx].alive = 0;
+              this.tempGrid[i][j].alive = 0;
             } else {
-              this.tempGrid[qIdx][sIdx].alive = s.newStatus();
+              this.tempGrid[i][j].alive = this.grid[i][j].newStatus();
             }
-      });
-    });
+      };
+    };
     this.grid = this.tempGrid;
   }
 
