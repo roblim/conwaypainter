@@ -4,9 +4,16 @@ const p5Canvas = function( sketch ) {
 
   const width = sketch.windowWidth * 0.98;
   const height = sketch.windowHeight * 0.97;
-  const cellSize = 11;
+  const cellSize = 10;
+  const seed = 0;
 
-  const uni = new Universe(width, height, cellSize, sketch);
+  const uni = new Universe(width, height, cellSize, seed, sketch);
+
+  const state = {
+    looping: 1,
+    drawing: 0,
+    activeCells: []
+  }
 
   sketch.setup = function() {
     sketch.createCanvas(width, height);
@@ -15,8 +22,23 @@ const p5Canvas = function( sketch ) {
 
   sketch.draw = function() {
     sketch.background('black');
-    uni.renderGrid();
-    uni.generationCycle();
+    // uni.renderGrid();
+    // uni.generationCycle();
+
+    if (state.drawing) {
+      state.activeCells.map(cell => uni.plotCell(cell));
+      state.activeCells.push(uni.setCell(
+        sketch.pmouseX,
+        sketch.pmouseY,
+        1)
+      );
+      state.activeCells.push(uni.setCell(
+        sketch.mouseX,
+        sketch.mouseY,
+        1)
+      );
+
+    }
 
     sketch.push();
     sketch.fill(255);
@@ -26,17 +48,32 @@ const p5Canvas = function( sketch ) {
     sketch.pop();
   };
 
-  const state = {
-    looping: 1
+  sketch.mousePressed = function() {
+    // if (!state.looping) {
+    //   uni.resetGridRandom();
+    // } else {
+    //   uni.setCell(
+    //     sketch.mouseX,
+    //     sketch.mouseY,
+    //     1);
+    // }
+    state.drawing = 1;
+  };
+
+  sketch.mouseReleased = function() {
+    state.drawing = 0;
+    state.activeCells = [];
   }
 
-  sketch.mousePressed = function() {
-    if (!state.looping) {
-      sketch.loop();
-      state.looping = 1;
-    }
-    uni.resetGridRandom();
-  };
+  // sketch.mouseDragged = function() {
+  //   if (state.looping) {
+  //     uni.setCell(
+  //       sketch.pmouseX,
+  //       sketch.pmouseY,
+  //       1);
+  //     sketch.redraw();
+  //   }
+  // }
 
   sketch.keyPressed = function() {
     switch(sketch.keyCode) {

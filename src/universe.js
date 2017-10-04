@@ -7,29 +7,50 @@ const CONSTANTS = {
 };
 
 class Universe {
-  constructor(width, height, cellSize, sketch) {
+  constructor(width, height, cellSize, seed, sketch) {
     this.sketch = sketch;
     this.width = width;
     this.height = height;
     this.cellSize = cellSize;
     this.gridWidth = Math.floor((width / cellSize) * 0.68);
     this.gridHeight = Math.floor((height / cellSize) * 0.7);
-    this.grid = this.generateGrid();
-    this.tempGrid = this.generateGrid();
+    this.grid = this.generateGrid(seed);
+    this.tempGrid = this.generateGrid(seed);
   }
 
   pixelToHex(x, y) {
     const q = (x * (Math.sqrt(3) / 3) - (y / 3)) / this.cellSize;
     const s = (y * (2 / 3)) / this.cellSize;
-    return { q, s };
+    return this.roundHex(q, s);
   }
 
-  roundHex() {
-    
+  roundHex(q, s) {
+    let r = -q - s
+    let rQ = Math.round(q);
+    let rR = Math.round(r);
+    let rS = Math.round(s);
+    const qDiff = Math.abs(rQ - q);
+    const rDiff = Math.abs(rR - r);
+    const sDiff = Math.abs(rS - s);
+
+    if (qDiff > rDiff && qDiff > sDiff) {
+      rQ = -rR - rS;
+    } else if (rDiff > sDiff) {
+      rR = -rQ - rS;
+    } else {
+      rS = -rQ - rR;
+    }
+    return { q: rQ, s: rS };
   }
 
-  setCell(q, s, status) {
-    this.getCell(q, s).alive = status;
+  setCell(x, y, status) {
+    const hexCoord = this.pixelToHex(x, y);
+    const cell = this.getCell(hexCoord.q, hexCoord.s);
+    cell.alive = status;
+    this.sketch.push();
+    this.plotCell(cell);
+    this.sketch.pop();
+    return cell;
   }
 
   resetGridRandom() {
@@ -80,7 +101,7 @@ class Universe {
     } else if (cell.alive === 2) {
       this.sketch.fill('orange');
     }
-    // this.sketch.stroke('red');
+    // this.sketch.stroke('grey');
     this.sketch.beginShape();
     for (var a = CONSTANTS.hexStartAngle;
                   a < CONSTANTS.twoPI;
