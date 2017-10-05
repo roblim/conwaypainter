@@ -1,8 +1,12 @@
 import Universe from './universe';
-import { CONSTANTS } from './constants';
+import CONSTANTS from './constants';
+
+const {
+        RUN,
+        PAINT
+      } = CONSTANTS;
 
 const p5Canvas = function( sketch ) {
-
   const width = sketch.windowWidth * 0.97;
   const height = sketch.windowHeight * 0.96;
   const cellSize = 8;
@@ -19,13 +23,10 @@ const p5Canvas = function( sketch ) {
 
   sketch.setup = function() {
     sketch.createCanvas(width, height);
-    // sketch.setFrameRate(30);
   };
 
   sketch.draw = function() {
     sketch.background('black');
-    // uni.renderGrid();
-    // uni.generationCycle();
     uni.render();
 
     // if (state.drawing) {
@@ -51,15 +52,6 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.mousePressed = function() {
-    // if (!state.looping) {
-    //   uni.resetGridRandom();
-    // } else {
-    //   uni.setCell(
-    //     sketch.mouseX,
-    //     sketch.mouseY,
-    //     1);
-    // }
-    state.drawing = 1;
   };
 
   sketch.mouseReleased = function() {
@@ -67,41 +59,28 @@ const p5Canvas = function( sketch ) {
     state.activeCells = [];
   }
 
-  // sketch.mouseDragged = function() {
-  //   if (state.looping) {
-  //     uni.setCell(
-  //       sketch.pmouseX,
-  //       sketch.pmouseY,
-  //       1);
-  //     sketch.redraw();
-  //   }
-  // }
+  sketch.mouseDragged = function() {
+    uni.setCell(
+      sketch.mouseX,
+      sketch.mouseY,
+      2);
+  }
 
   sketch.keyPressed = function() {
     switch(sketch.keyCode) {
       case 32:
-        if (state.looping) {
-          sketch.noLoop();
-          state.looping = 0;
-        } else {
-          sketch.loop();
-          state.looping = 1;
+        if (uni.painter.mode === RUN) {
+          uni.painter.mode = null;
+        } else if (uni.painter.mode === null) {
+          uni.painter.mode = RUN;
         }
         break;
       case sketch.BACKSPACE:
-        if (!state.looping) {
-          sketch.loop();
-          state.looping = 1;
-        }
         uni.clearGrid();
-        uni.renderGrid();
         break;
       case sketch.ENTER:
-        if (!state.looping) {
-          sketch.loop();
-          state.looping = 1;
-        }
         uni.resetGridRandom();
+        sketch.redraw();
         break;
     };
   };

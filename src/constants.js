@@ -1,7 +1,7 @@
 const CONSTANTS = {
-  hexInAngle: (Math.PI * 2) / 6,
-  hexStartAngle: (Math.PI / 6),
-  twoPI: Math.PI * 2,
+  HEX_IN_ANGLE: (Math.PI * 2) / 6,
+  HEX_START_ANGLE: (Math.PI / 6),
+  TWO_PI: Math.PI * 2,
   RUN: 'RUN',
   PAINT: 'PAINT'
 };

@@ -74,8 +74,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-const p5Canvas = function( sketch ) {
+const {
+        RUN,
+        PAINT
+      } = __WEBPACK_IMPORTED_MODULE_1__constants__["a" /* default */];
 
+const p5Canvas = function( sketch ) {
   const width = sketch.windowWidth * 0.97;
   const height = sketch.windowHeight * 0.96;
   const cellSize = 8;
@@ -92,13 +96,10 @@ const p5Canvas = function( sketch ) {
 
   sketch.setup = function() {
     sketch.createCanvas(width, height);
-    // sketch.setFrameRate(30);
   };
 
   sketch.draw = function() {
     sketch.background('black');
-    // uni.renderGrid();
-    // uni.generationCycle();
     uni.render();
 
     // if (state.drawing) {
@@ -124,15 +125,6 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.mousePressed = function() {
-    // if (!state.looping) {
-    //   uni.resetGridRandom();
-    // } else {
-    //   uni.setCell(
-    //     sketch.mouseX,
-    //     sketch.mouseY,
-    //     1);
-    // }
-    state.drawing = 1;
   };
 
   sketch.mouseReleased = function() {
@@ -140,41 +132,28 @@ const p5Canvas = function( sketch ) {
     state.activeCells = [];
   }
 
-  // sketch.mouseDragged = function() {
-  //   if (state.looping) {
-  //     uni.setCell(
-  //       sketch.pmouseX,
-  //       sketch.pmouseY,
-  //       1);
-  //     sketch.redraw();
-  //   }
-  // }
+  sketch.mouseDragged = function() {
+    uni.setCell(
+      sketch.mouseX,
+      sketch.mouseY,
+      2);
+  }
 
   sketch.keyPressed = function() {
     switch(sketch.keyCode) {
       case 32:
-        if (state.looping) {
-          sketch.noLoop();
-          state.looping = 0;
-        } else {
-          sketch.loop();
-          state.looping = 1;
+        if (uni.painter.mode === RUN) {
+          uni.painter.mode = null;
+        } else if (uni.painter.mode === null) {
+          uni.painter.mode = RUN;
         }
         break;
       case sketch.BACKSPACE:
-        if (!state.looping) {
-          sketch.loop();
-          state.looping = 1;
-        }
         uni.clearGrid();
-        uni.renderGrid();
         break;
       case sketch.ENTER:
-        if (!state.looping) {
-          sketch.loop();
-          state.looping = 1;
-        }
         uni.resetGridRandom();
+        sketch.redraw();
         break;
     };
   };
@@ -190,8 +169,6 @@ var myp5 = new p5(p5Canvas, 'sketch');
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cell__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__painter__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__constants__ = __webpack_require__(3);
-
 
 
 
@@ -277,8 +254,6 @@ class Universe {
     const hexCoord = this.pixelToHex(x, y);
     const cell = this.getCell(hexCoord.q, hexCoord.s);
     cell.alive = status;
-    this.painter.plotCell(cell);
-    return cell;
   }
 
   generationCycle() {
@@ -322,7 +297,7 @@ const NEIGHBORS = [
 ];
 
 class Cell {
-  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3)  )) {
+  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3) )) {
     this.coord = { q, r, s };
     this.alive = alive;
     this.universe = universe;
@@ -421,9 +396,9 @@ class Cell {
 
 "use strict";
 const CONSTANTS = {
-  hexInAngle: (Math.PI * 2) / 6,
-  hexStartAngle: (Math.PI / 6),
-  twoPI: Math.PI * 2,
+  HEX_IN_ANGLE: (Math.PI * 2) / 6,
+  HEX_START_ANGLE: (Math.PI / 6),
+  TWO_PI: Math.PI * 2,
   RUN: 'RUN',
   PAINT: 'PAINT'
 };
@@ -443,7 +418,13 @@ const CONSTANTS = {
 
 
 
-const { RUN } = { CONSTANTS: __WEBPACK_IMPORTED_MODULE_2__constants__["a" /* default */] };
+const {
+        HEX_IN_ANGLE,
+        HEX_START_ANGLE,
+        TWO_PI,
+        RUN,
+        PAINT
+      } = __WEBPACK_IMPORTED_MODULE_2__constants__["a" /* default */];
 
 class Painter {
   constructor(universe, sketch) {
@@ -452,29 +433,32 @@ class Painter {
     this.cellSize = universe.cellSize;
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
-
     this.mode = RUN;
   }
 
   plotCell(cell) {
     this.sketch.push();
     if (cell.alive === 1) {
-      // this.sketch.fill('blue');
       this.sketch.stroke('yellow');
+      // this.sketch.fill('blue');
     } else if (cell.alive === 2) {
       this.sketch.stroke('yellow');
       // this.sketch.fill('orange');
     }
+    this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y)
+    this.sketch.pop();
+  }
+
+  drawHex(x, y) {
     this.sketch.beginShape();
-    for (var a = __WEBPACK_IMPORTED_MODULE_2__constants__["a" /* default */].hexStartAngle;
-                  a < __WEBPACK_IMPORTED_MODULE_2__constants__["a" /* default */].twoPI;
-                  a += __WEBPACK_IMPORTED_MODULE_2__constants__["a" /* default */].hexInAngle) {
-      var sx = cell.pixelCoord.x + Math.cos(a) * this.cellSize;
-      var sy = cell.pixelCoord.y + Math.sin(a) * this.cellSize;
+    for (var a = HEX_START_ANGLE;
+                  a < TWO_PI;
+                  a += HEX_IN_ANGLE) {
+      var sx = x + Math.cos(a) * this.cellSize;
+      var sy = y + Math.sin(a) * this.cellSize;
       this.sketch.vertex(sx, sy);
     }
     this.sketch.endShape(this.sketch.CLOSE);
-    this.sketch.pop();
   }
 
   renderGrid() {
@@ -493,6 +477,10 @@ class Painter {
       case RUN:
         this.universe.generationCycle();
         this.renderGrid();
+        break;
+      default:
+        this.renderGrid();
+        break;
     }
 
   }

@@ -2,7 +2,13 @@ import Universe from './universe';
 import Cell from './cell';
 import CONSTANTS from './constants';
 
-const { RUN } = { CONSTANTS };
+const {
+        HEX_IN_ANGLE,
+        HEX_START_ANGLE,
+        TWO_PI,
+        RUN,
+        PAINT
+      } = CONSTANTS;
 
 class Painter {
   constructor(universe, sketch) {
@@ -11,29 +17,32 @@ class Painter {
     this.cellSize = universe.cellSize;
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
-
     this.mode = RUN;
   }
 
   plotCell(cell) {
     this.sketch.push();
     if (cell.alive === 1) {
-      // this.sketch.fill('blue');
       this.sketch.stroke('yellow');
+      // this.sketch.fill('blue');
     } else if (cell.alive === 2) {
       this.sketch.stroke('yellow');
       // this.sketch.fill('orange');
     }
+    this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y)
+    this.sketch.pop();
+  }
+
+  drawHex(x, y) {
     this.sketch.beginShape();
-    for (var a = CONSTANTS.hexStartAngle;
-                  a < CONSTANTS.twoPI;
-                  a += CONSTANTS.hexInAngle) {
-      var sx = cell.pixelCoord.x + Math.cos(a) * this.cellSize;
-      var sy = cell.pixelCoord.y + Math.sin(a) * this.cellSize;
+    for (var a = HEX_START_ANGLE;
+                  a < TWO_PI;
+                  a += HEX_IN_ANGLE) {
+      var sx = x + Math.cos(a) * this.cellSize;
+      var sy = y + Math.sin(a) * this.cellSize;
       this.sketch.vertex(sx, sy);
     }
     this.sketch.endShape(this.sketch.CLOSE);
-    this.sketch.pop();
   }
 
   renderGrid() {
@@ -52,6 +61,10 @@ class Painter {
       case RUN:
         this.universe.generationCycle();
         this.renderGrid();
+        break;
+      default:
+        this.renderGrid();
+        break;
     }
 
   }

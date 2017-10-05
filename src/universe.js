@@ -1,6 +1,5 @@
 import Cell from './cell';
 import Painter from './painter';
-import CONSTANTS from './constants';
 
 class Universe {
   constructor(width, height, cellSize, sketch, seed)  {
@@ -84,8 +83,6 @@ class Universe {
     const hexCoord = this.pixelToHex(x, y);
     const cell = this.getCell(hexCoord.q, hexCoord.s);
     cell.alive = status;
-    this.painter.plotCell(cell);
-    return cell;
   }
 
   generationCycle() {
