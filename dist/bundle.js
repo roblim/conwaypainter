@@ -484,7 +484,6 @@ class Painter {
         this.renderGrid();
         break;
     }
-
   }
 }
 
