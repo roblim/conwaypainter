@@ -32,10 +32,8 @@ class Painter {
   plotCell(cell) {
     this.sketch.push();
     if (cell.alive === 1) {
-      // this.sketch.stroke('yellow');
       this.sketch.fill('yellow');
     } else if (cell.alive === 2) {
-      // this.sketch.stroke('yellow');
       this.sketch.fill('yellow');
     }
     this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y)
@@ -85,7 +83,6 @@ class Painter {
     this.stampQueue.map(cell => {
       this.paintCell(cell.pixelCoord.x, cell.pixelCoord.y, 1);
     });
-    this.paintQueue.concat(this.stampQueue);
   }
 
   drawHex(x, y) {
