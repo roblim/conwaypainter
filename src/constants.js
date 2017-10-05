@@ -5,8 +5,9 @@ const CONSTANTS = {
   RUN: 'RUN',
   PAINT: 'PAINT',
   RING: 'RING',
+  DEFAULT: 'DEFAULT',
   STAMPS: {
-    
+
   }
 };
 

@@ -82,7 +82,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 const {
         RUN,
         PAINT,
-        RING
+        RING,
+        DEFAULT
       } = __WEBPACK_IMPORTED_MODULE_1__constants__["a" /* default */];
 
 const p5Canvas = function( sketch ) {
@@ -103,7 +104,7 @@ const p5Canvas = function( sketch ) {
 
   sketch.draw = function() {
     sketch.background('black');
-    uni.painter.hexCursor();
+    uni.painter.renderCursor();
     uni.render();
     fpsCounter();
 
@@ -153,9 +154,7 @@ const p5Canvas = function( sketch ) {
 
   sketch.mousePressed = function() {
     if (uni.painter.mode === PAINT) {
-      uni.painter.stampTemp = uni.painter.stamp;
-      uni.painter.stamp = null;
-      switch(uni.painter.stampTemp) {
+      switch(uni.painter.stamp) {
         case RING:
           uni.painter.setStamp();
           break;
@@ -170,10 +169,6 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.mouseReleased = function() {
-    if (uni.painter.mode === PAINT) {
-      uni.painter.stamp = uni.painter.stampTemp;
-      uni.painter.stampTemp = null;
-    }
   };
 
   sketch.mouseClicked = function() {
@@ -192,10 +187,9 @@ const p5Canvas = function( sketch ) {
     }
   };
 
-
   sketch.mouseDragged = function() {
     if (uni.painter.mode === PAINT) {
-      switch(uni.painter.stampTemp) {
+      switch(uni.painter.stamp) {
         case RING:
           uni.painter.setStamp();
           break;
@@ -509,8 +503,9 @@ const CONSTANTS = {
   RUN: 'RUN',
   PAINT: 'PAINT',
   RING: 'RING',
+  DEFAULT: 'DEFAULT',
   STAMPS: {
-    
+
   }
 };
 
@@ -535,7 +530,8 @@ const {
         TWO_PI,
         RUN,
         PAINT,
-        RING
+        RING,
+        DEFAULT
       } = __WEBPACK_IMPORTED_MODULE_2__constants__["a" /* default */];
 
 class Painter {
@@ -550,6 +546,11 @@ class Painter {
     this.stampTemp = null;
     this.paintQueue = [];
     this.stampQueue = [];
+
+    this.cursors = {
+      RING: this.ringCursor.bind(this),
+      DEFAULT: this.hexCursor.bind(this),
+    }
   }
 
   plotCell(cell) {
@@ -565,11 +566,21 @@ class Painter {
     this.sketch.pop();
   }
 
-  hexCursor() {
+  renderCursor() {
     this.sketch.push();
-    this.sketch.stroke('white');
-    this.drawHex(this.sketch.mouseX, this.sketch.mouseY);
+    let cursor = this.cursors[DEFAULT];
+    if (!this.sketch.mouseIsPressed) {
+      this.sketch.stroke('white')
+    }
+    if (this.stamp && this.mode === PAINT) {
+      cursor = this.cursors[this.stamp];
+    }
+    cursor();
     this.sketch.pop();
+  }
+
+  hexCursor() {
+    this.drawHex(this.sketch.mouseX, this.sketch.mouseY);
   }
 
   ringCursor() {
@@ -632,12 +643,12 @@ class Painter {
         break;
       case PAINT:
         this.paintQueue.map(cell => this.plotCell(cell));
-        switch(this.stamp) {
-          case RING:
-            this.ringCursor();
-            break;
-        }
-        break;
+        // switch(this.stamp) {
+        //   case RING:
+        //     this.ringCursor();
+        //     break;
+        // }
+        // break;
       default:
         this.renderGrid();
         break;

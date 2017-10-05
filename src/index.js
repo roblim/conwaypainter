@@ -9,7 +9,8 @@ import CONSTANTS from './constants';
 const {
         RUN,
         PAINT,
-        RING
+        RING,
+        DEFAULT
       } = CONSTANTS;
 
 const p5Canvas = function( sketch ) {
@@ -30,7 +31,7 @@ const p5Canvas = function( sketch ) {
 
   sketch.draw = function() {
     sketch.background('black');
-    uni.painter.hexCursor();
+    uni.painter.renderCursor();
     uni.render();
     fpsCounter();
 
@@ -80,9 +81,7 @@ const p5Canvas = function( sketch ) {
 
   sketch.mousePressed = function() {
     if (uni.painter.mode === PAINT) {
-      uni.painter.stampTemp = uni.painter.stamp;
-      uni.painter.stamp = null;
-      switch(uni.painter.stampTemp) {
+      switch(uni.painter.stamp) {
         case RING:
           uni.painter.setStamp();
           break;
@@ -97,10 +96,6 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.mouseReleased = function() {
-    if (uni.painter.mode === PAINT) {
-      uni.painter.stamp = uni.painter.stampTemp;
-      uni.painter.stampTemp = null;
-    }
   };
 
   sketch.mouseClicked = function() {
@@ -119,10 +114,9 @@ const p5Canvas = function( sketch ) {
     }
   };
 
-
   sketch.mouseDragged = function() {
     if (uni.painter.mode === PAINT) {
-      switch(uni.painter.stampTemp) {
+      switch(uni.painter.stamp) {
         case RING:
           uni.painter.setStamp();
           break;

@@ -8,7 +8,8 @@ const {
         TWO_PI,
         RUN,
         PAINT,
-        RING
+        RING,
+        DEFAULT
       } = CONSTANTS;
 
 class Painter {
@@ -23,6 +24,11 @@ class Painter {
     this.stampTemp = null;
     this.paintQueue = [];
     this.stampQueue = [];
+
+    this.cursors = {
+      RING: this.ringCursor.bind(this),
+      DEFAULT: this.hexCursor.bind(this),
+    }
   }
 
   plotCell(cell) {
@@ -38,11 +44,21 @@ class Painter {
     this.sketch.pop();
   }
 
-  hexCursor() {
+  renderCursor() {
     this.sketch.push();
-    this.sketch.stroke('white');
-    this.drawHex(this.sketch.mouseX, this.sketch.mouseY);
+    let cursor = this.cursors[DEFAULT];
+    if (!this.sketch.mouseIsPressed) {
+      this.sketch.stroke('white')
+    }
+    if (this.stamp && this.mode === PAINT) {
+      cursor = this.cursors[this.stamp];
+    }
+    cursor();
     this.sketch.pop();
+  }
+
+  hexCursor() {
+    this.drawHex(this.sketch.mouseX, this.sketch.mouseY);
   }
 
   ringCursor() {
@@ -105,12 +121,12 @@ class Painter {
         break;
       case PAINT:
         this.paintQueue.map(cell => this.plotCell(cell));
-        switch(this.stamp) {
-          case RING:
-            this.ringCursor();
-            break;
-        }
-        break;
+        // switch(this.stamp) {
+        //   case RING:
+        //     this.ringCursor();
+        //     break;
+        // }
+        // break;
       default:
         this.renderGrid();
         break;
