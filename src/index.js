@@ -48,14 +48,21 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.touchMoved = function() {
-    uni.painter.paintCell(
-      sketch.mouseX,
-      sketch.mouseY,
-      1);
-    uni.painter.paintCell(
-      sketch.pmouseX,
-      sketch.pmouseY,
-      1);
+    switch(uni.painter.stamp) {
+      case RING:
+        uni.painter.setStamp();
+        break;
+      default:
+        uni.painter.paintCell(
+          sketch.mouseX,
+          sketch.mouseY,
+          1);
+        uni.painter.paintCell(
+          sketch.pmouseX,
+          sketch.pmouseY,
+          1);
+        break;
+    };
     return false;
   };
 
@@ -115,26 +122,27 @@ const p5Canvas = function( sketch ) {
     } else {
       uni.painter.mode = RUN;
     }
+    return false;
   };
 
-  sketch.keyPressed = function() {
-    switch(sketch.keyCode) {
-      case 32:
-        if (uni.painter.mode === RUN) {
-          uni.painter.mode = null;
-        } else if (uni.painter.mode === null) {
-          uni.painter.mode = RUN;
-        }
-        break;
-      case sketch.BACKSPACE:
-        uni.clearGrid();
-        break;
-      case sketch.ENTER:
-        uni.resetGridRandom();
-        sketch.redraw();
-        break;
-    };
-  };
+  // sketch.keyPressed = function() {
+  //   switch(sketch.keyCode) {
+  //     case 32:
+  //       if (uni.painter.mode === RUN) {
+  //         uni.painter.mode = null;
+  //       } else if (uni.painter.mode === null) {
+  //         uni.painter.mode = RUN;
+  //       }
+  //       break;
+  //     case sketch.BACKSPACE:
+  //       uni.clearGrid();
+  //       break;
+  //     case sketch.ENTER:
+  //       uni.resetGridRandom();
+  //       sketch.redraw();
+  //       break;
+  //   };
+  // };
 };
 
 var myp5 = new p5(p5Canvas, 'sketch');

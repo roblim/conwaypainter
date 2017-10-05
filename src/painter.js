@@ -7,7 +7,6 @@ const {
         HEX_START_ANGLE,
         TWO_PI,
         RUN,
-        PAINT,
         RING,
         DEFAULT
       } = CONSTANTS;
@@ -22,7 +21,6 @@ class Painter {
     this.mode = RUN;
     this.stamp = RING;
     this.stampTemp = null;
-    this.paintQueue = [];
     this.stampQueue = [];
 
     this.cursors = {
@@ -128,15 +126,6 @@ class Painter {
         this.universe.generationCycle();
         this.renderGrid();
         break;
-      case PAINT:
-        this.paintQueue.map(cell => this.plotCell(cell));
-        this.paintQueue.map(cell => this.plotCell(cell));
-        // switch(this.stamp) {
-        //   case RING:
-        //     this.ringCursor();
-        //     break;
-        // }
-        // break;
       default:
         this.renderGrid();
         break;
