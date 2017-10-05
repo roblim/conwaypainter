@@ -2,6 +2,7 @@ import CONSTANTS from './constants';
 
 const {
         RUN,
+        RING
       } = CONSTANTS;
 
 class Interface {
@@ -13,12 +14,16 @@ class Interface {
     this.startToggle = this.startToggle.bind(this);
     this.randomize = this.randomize.bind(this);
     this.clear = this.clear.bind(this);
+    this.setHexStamp = this.setHexStamp.bind(this);
+    this.setRingStamp = this.setRingStamp.bind(this);
   }
 
   interfaceSetup() {
     this.playButton();
     this.randomizeButton();
     this.clearButton();
+    this.hexStampButton();
+    this.ringStampButton();
   }
 
   playButton() {
@@ -36,6 +41,16 @@ class Interface {
     clearButton.mousePressed(this.clear);
   }
 
+  hexStampButton() {
+    const hexStampButton = this.sketch.createButton('Default Brush');
+    hexStampButton.mousePressed(this.setHexStamp);
+  }
+
+  ringStampButton() {
+    const ringStampButton = this.sketch.createButton('Ring Brush');
+    ringStampButton.mousePressed(this.setRingStamp);
+  }
+
   startToggle() {
     this.painter.mode === RUN ? (this.painter.mode = null) : (this.painter.mode = RUN);
   }
@@ -46,6 +61,14 @@ class Interface {
 
   clear() {
     this.universe.clearGrid();
+  }
+
+  setHexStamp() {
+    this.painter.stamp = null;
+  }
+
+  setRingStamp() {
+    this.painter.stamp = RING;
   }
 }
 

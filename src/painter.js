@@ -19,7 +19,7 @@ class Painter {
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
     this.mode = RUN;
-    this.stamp = RING;
+    this.stamp = null;
     this.stampTemp = null;
     this.stampQueue = [];
 
