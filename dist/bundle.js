@@ -117,6 +117,39 @@ const p5Canvas = function( sketch ) {
     sketch.pop();
   }
 
+  sketch.touchStarted = function() {
+    if (uni.painter.mode === PAINT) {
+      uni.painter.paintCell(
+        sketch.mouseX,
+        sketch.mouseY,
+        1);
+    }
+    return false;
+  }
+
+  sketch.touchMoved = function() {
+    if (uni.painter.mode === PAINT) {
+      uni.painter.paintCell(
+        sketch.mouseX,
+        sketch.mouseY,
+        1);
+      uni.painter.paintCell(
+        sketch.pmouseX,
+        sketch.pmouseY,
+        1);
+    } else {
+      uni.setCell(
+        sketch.mouseX,
+        sketch.mouseY,
+        1);
+      uni.setCell(
+        sketch.pmouseX,
+        sketch.pmouseY,
+        1);
+    }
+    return false;
+  }
+
   sketch.mousePressed = function() {
   };
 
