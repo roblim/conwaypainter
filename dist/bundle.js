@@ -550,7 +550,7 @@ class Painter {
       this.sketch.stroke('blue');
       this.sketch.noFill();
     } else {
-      this.sketch.noStroke();
+      this.sketch.stroke('blue');
       this.sketch.noFill();
     }
     if (this.stamp) {
