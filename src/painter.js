@@ -54,7 +54,6 @@ class Painter {
         this.renderGrid();
     }
 
-
   }
 }
 
