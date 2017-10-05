@@ -34,6 +34,13 @@ class Painter {
     this.sketch.pop();
   }
 
+  hexCursor() {
+    this.sketch.push();
+    this.sketch.stroke('white');
+    this.drawHex(this.sketch.mouseX, this.sketch.mouseY);
+    this.sketch.pop();
+  }
+
   drawHex(x, y) {
     this.sketch.beginShape();
     for (var a = HEX_START_ANGLE;
@@ -58,6 +65,10 @@ class Painter {
   }
 
   paintCell(x, y, status) {
+    this.sketch.push();
+    this.sketch.stroke('yellow');
+    this.drawHex(x,y);
+    this.sketch.pop();
     this.paintQueue.push(this.universe.setCell(x, y, status));
   }
 

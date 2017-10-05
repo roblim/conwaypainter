@@ -90,10 +90,14 @@ const p5Canvas = function( sketch ) {
 
   sketch.setup = function() {
     sketch.createCanvas(width, height);
+    sketch.cursor(sketch.CROSS);
+    // sketch.noCursor();
+
   };
 
   sketch.draw = function() {
     sketch.background('black');
+    // uni.painter.hexCursor();
     uni.render();
     fpsCounter();
 
@@ -109,12 +113,19 @@ const p5Canvas = function( sketch ) {
   }
 
   sketch.mousePressed = function() {
-    // uni.resetGridRandom();
-    // sketch.redraw();
+  };
+
+  sketch.mouseClicked = function() {
+    if (uni.painter.mode === PAINT) {
+      uni.painter.paintCell(
+        sketch.mouseX,
+        sketch.mouseY,
+        1);
+    }
   };
 
   sketch.mouseReleased = function() {
-  }
+  };
 
   sketch.mouseDragged = function() {
     if (uni.painter.mode === PAINT) {
@@ -126,6 +137,25 @@ const p5Canvas = function( sketch ) {
         sketch.pmouseX,
         sketch.pmouseY,
         1);
+    } else {
+      uni.setCell(
+        sketch.mouseX,
+        sketch.mouseY,
+        1);
+      uni.setCell(
+        sketch.pmouseX,
+        sketch.pmouseY,
+        1);
+    }
+  }
+
+  sketch.deviceShaken = function() {
+    if (uni.painter.mode === PAINT) {
+      uni.painter.mode = RUN;
+      uni.painter.paintQueue = [];
+    } else {
+      uni.clearGrid();
+      uni.painter.mode = PAINT;
     }
   }
 
@@ -449,6 +479,13 @@ class Painter {
     this.sketch.pop();
   }
 
+  hexCursor() {
+    this.sketch.push();
+    this.sketch.stroke('white');
+    this.drawHex(this.sketch.mouseX, this.sketch.mouseY);
+    this.sketch.pop();
+  }
+
   drawHex(x, y) {
     this.sketch.beginShape();
     for (var a = HEX_START_ANGLE;
@@ -473,6 +510,10 @@ class Painter {
   }
 
   paintCell(x, y, status) {
+    this.sketch.push();
+    this.sketch.stroke('yellow');
+    this.drawHex(x,y);
+    this.sketch.pop();
     this.paintQueue.push(this.universe.setCell(x, y, status));
   }
 
