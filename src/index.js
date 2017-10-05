@@ -52,6 +52,8 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.mousePressed = function() {
+    uni.resetGridRandom();
+    sketch.redraw();
   };
 
   sketch.mouseReleased = function() {
