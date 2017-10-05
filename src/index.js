@@ -43,6 +43,10 @@ const p5Canvas = function( sketch ) {
     return false;
   };
 
+  sketch.touchEnded = function() {
+    return false;
+  };
+
   sketch.touchMoved = function() {
     uni.painter.paintCell(
       sketch.mouseX,
@@ -104,7 +108,7 @@ const p5Canvas = function( sketch ) {
     };
   }
 
-  sketch.deviceShaken() = function() {
+  sketch.deviceShaken = function() {
     if (uni.painter.mode === RUN) {
       uni.painter.mode = null;
       uni.clearGrid();
