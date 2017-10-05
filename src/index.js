@@ -1,13 +1,15 @@
-import Universe from './universe'
+import Universe from './universe';
+import { CONSTANTS } from './constants';
 
 const p5Canvas = function( sketch ) {
 
-  const width = sketch.windowWidth * 0.98;
-  const height = sketch.windowHeight * 0.97;
-  const cellSize = 10;
-  const seed = 0;
+  const width = sketch.windowWidth * 0.97;
+  const height = sketch.windowHeight * 0.96;
+  const cellSize = 8;
+  let seed;
+  // const seed = 0;
 
-  const uni = new Universe(width, height, cellSize, seed, sketch);
+  const uni = new Universe(width, height, cellSize, sketch);
 
   const state = {
     looping: 1,
@@ -24,21 +26,21 @@ const p5Canvas = function( sketch ) {
     sketch.background('black');
     // uni.renderGrid();
     // uni.generationCycle();
+    uni.render();
 
-    if (state.drawing) {
-      state.activeCells.map(cell => uni.plotCell(cell));
-      state.activeCells.push(uni.setCell(
-        sketch.pmouseX,
-        sketch.pmouseY,
-        1)
-      );
-      state.activeCells.push(uni.setCell(
-        sketch.mouseX,
-        sketch.mouseY,
-        1)
-      );
-
-    }
+    // if (state.drawing) {
+    //   state.activeCells.map(cell => uni.plotCell(cell));
+    //   state.activeCells.push(uni.setCell(
+    //     sketch.pmouseX,
+    //     sketch.pmouseY,
+    //     1)
+    //   );
+    //   state.activeCells.push(uni.setCell(
+    //     sketch.mouseX,
+    //     sketch.mouseY,
+    //     1)
+    //   );
+    // }
 
     sketch.push();
     sketch.fill(255);
