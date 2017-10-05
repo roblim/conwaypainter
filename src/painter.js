@@ -18,6 +18,7 @@ class Painter {
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
     this.mode = RUN;
+    this.paintQueue = [];
   }
 
   plotCell(cell) {
@@ -56,11 +57,18 @@ class Painter {
     }
   }
 
+  paintCell(x, y, status) {
+    this.paintQueue.push(this.universe.setCell(x, y, status));
+  }
+
   render() {
     switch(this.mode) {
       case RUN:
         this.universe.generationCycle();
         this.renderGrid();
+        break;
+      case PAINT:
+        this.paintQueue.map(cell => this.plotCell(cell));
         break;
       default:
         this.renderGrid();

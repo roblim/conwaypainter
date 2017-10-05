@@ -83,6 +83,7 @@ class Universe {
     const hexCoord = this.pixelToHex(x, y);
     const cell = this.getCell(hexCoord.q, hexCoord.s);
     cell.alive = status;
+    return cell;
   }
 
   generationCycle() {

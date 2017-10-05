@@ -88,12 +88,6 @@ const p5Canvas = function( sketch ) {
 
   const uni = new __WEBPACK_IMPORTED_MODULE_0__universe__["a" /* default */](width, height, cellSize, sketch);
 
-  const state = {
-    looping: 1,
-    drawing: 0,
-    activeCells: []
-  }
-
   sketch.setup = function() {
     sketch.createCanvas(width, height);
   };
@@ -101,44 +95,38 @@ const p5Canvas = function( sketch ) {
   sketch.draw = function() {
     sketch.background('black');
     uni.render();
+    fpsCounter();
 
-    // if (state.drawing) {
-    //   state.activeCells.map(cell => uni.plotCell(cell));
-    //   state.activeCells.push(uni.setCell(
-    //     sketch.pmouseX,
-    //     sketch.pmouseY,
-    //     1)
-    //   );
-    //   state.activeCells.push(uni.setCell(
-    //     sketch.mouseX,
-    //     sketch.mouseY,
-    //     1)
-    //   );
-    // }
+  };
 
+  const fpsCounter = function() {
     sketch.push();
     sketch.fill(255);
     sketch.stroke(0);
     var fps = sketch.frameRate();
     sketch.text("FPS: " + fps.toFixed(2), 10, sketch.height - 10);
     sketch.pop();
-  };
+  }
 
   sketch.mousePressed = function() {
-    uni.resetGridRandom();
-    sketch.redraw();
+    // uni.resetGridRandom();
+    // sketch.redraw();
   };
 
   sketch.mouseReleased = function() {
-    state.drawing = 0;
-    state.activeCells = [];
   }
 
   sketch.mouseDragged = function() {
-    uni.setCell(
-      sketch.mouseX,
-      sketch.mouseY,
-      2);
+    if (uni.painter.mode === PAINT) {
+      uni.painter.paintCell(
+        sketch.mouseX,
+        sketch.mouseY,
+        1);
+      uni.painter.paintCell(
+        sketch.pmouseX,
+        sketch.pmouseY,
+        1);
+    }
   }
 
   sketch.keyPressed = function() {
@@ -157,6 +145,14 @@ const p5Canvas = function( sketch ) {
         uni.resetGridRandom();
         sketch.redraw();
         break;
+      case 80:
+        if (uni.painter.mode === PAINT) {
+          uni.painter.mode = RUN;
+          uni.painter.paintQueue = [];
+        } else {
+          uni.clearGrid();
+          uni.painter.mode = PAINT;
+        }
     };
   };
 };
@@ -256,6 +252,7 @@ class Universe {
     const hexCoord = this.pixelToHex(x, y);
     const cell = this.getCell(hexCoord.q, hexCoord.s);
     cell.alive = status;
+    return cell;
   }
 
   generationCycle() {
@@ -436,6 +433,7 @@ class Painter {
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
     this.mode = RUN;
+    this.paintQueue = [];
   }
 
   plotCell(cell) {
@@ -474,11 +472,18 @@ class Painter {
     }
   }
 
+  paintCell(x, y, status) {
+    this.paintQueue.push(this.universe.setCell(x, y, status));
+  }
+
   render() {
     switch(this.mode) {
       case RUN:
         this.universe.generationCycle();
         this.renderGrid();
+        break;
+      case PAINT:
+        this.paintQueue.map(cell => this.plotCell(cell));
         break;
       default:
         this.renderGrid();
