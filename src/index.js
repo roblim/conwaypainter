@@ -8,7 +8,6 @@ import CONSTANTS from './constants';
 
 const {
         RUN,
-        PAINT,
         RING,
         DEFAULT
       } = CONSTANTS;
@@ -17,22 +16,18 @@ const p5Canvas = function( sketch ) {
   const width = sketch.windowWidth * 0.97;
   const height = sketch.windowHeight * 0.96;
   const cellSize = 8;
-  let seed;
-  // const seed = 0;
 
   const uni = new Universe(width, height, cellSize, sketch);
 
   sketch.setup = function() {
     sketch.createCanvas(width, height);
     sketch.cursor(sketch.CROSS);
-    // sketch.noCursor();
-
   };
 
   sketch.draw = function() {
     sketch.background('black');
-    uni.painter.renderCursor();
     uni.render();
+    uni.painter.renderCursor();
     fpsCounter();
 
   };
@@ -47,75 +42,58 @@ const p5Canvas = function( sketch ) {
   }
 
   sketch.touchStarted = function() {
-    if (uni.painter.mode === PAINT) {
-      uni.painter.paintCell(
-        sketch.mouseX,
-        sketch.mouseY,
-        1);
-    }
+    uni.painter.paintCell(
+      sketch.mouseX,
+      sketch.mouseY,
+      1);
     return false;
   }
 
   sketch.touchMoved = function() {
-    if (uni.painter.mode === PAINT) {
-      uni.painter.paintCell(
-        sketch.mouseX,
-        sketch.mouseY,
-        1);
-      uni.painter.paintCell(
-        sketch.pmouseX,
-        sketch.pmouseY,
-        1);
-    } else {
-      uni.setCell(
-        sketch.mouseX,
-        sketch.mouseY,
-        1);
-      uni.setCell(
-        sketch.pmouseX,
-        sketch.pmouseY,
-        1);
+    uni.painter.paintCell(
+      sketch.mouseX,
+      sketch.mouseY,
+      1);
+    uni.painter.paintCell(
+      sketch.pmouseX,
+      sketch.pmouseY,
+      1);
     }
     return false;
   }
 
   sketch.mousePressed = function() {
-    if (uni.painter.mode === PAINT) {
-      switch(uni.painter.stamp) {
-        case RING:
-          uni.painter.setStamp();
-          break;
-        default:
-          uni.painter.paintCell(
-            sketch.mouseX,
-            sketch.mouseY,
-            1);
-          break;
-      };
-    }
+    switch(uni.painter.stamp) {
+      case RING:
+        uni.painter.setStamp();
+        break;
+      default:
+        uni.painter.paintCell(
+          sketch.mouseX,
+          sketch.mouseY,
+          1);
+        break;
+    };
   };
 
   sketch.mouseReleased = function() {
   };
 
   sketch.mouseClicked = function() {
-    if (uni.painter.mode === PAINT) {
-      switch(uni.painter.stamp) {
-        case RING:
-          uni.painter.setStamp();
-          break;
-        default:
-          uni.painter.paintCell(
-            sketch.mouseX,
-            sketch.mouseY,
-            1);
-          break;
-      };
-    }
+    switch(uni.painter.stamp) {
+      case RING:
+        uni.painter.setStamp();
+        break;
+      default:
+        uni.painter.paintCell(
+          sketch.mouseX,
+          sketch.mouseY,
+          1);
+        break;
+    };
   };
 
   sketch.mouseDragged = function() {
-    if (uni.painter.mode === PAINT) {
       switch(uni.painter.stamp) {
         case RING:
           uni.painter.setStamp();
@@ -131,25 +109,14 @@ const p5Canvas = function( sketch ) {
             1);
           break;
       };
-    } else {
-      uni.setCell(
-        sketch.mouseX,
-        sketch.mouseY,
-        1);
-      uni.setCell(
-        sketch.pmouseX,
-        sketch.pmouseY,
-        1);
-    }
   }
 
   sketch.deviceShaken = function() {
-    if (uni.painter.mode === PAINT) {
-      uni.painter.mode = RUN;
-      uni.painter.paintQueue = [];
+    if (uni.painter.mode === RUN) {
+      uni.painter.mode = null;
+      uni.clearGrid;
     } else {
-      uni.clearGrid();
-      uni.painter.mode = PAINT;
+      uni.painter.mode = RUN;
     }
   }
 
@@ -169,14 +136,6 @@ const p5Canvas = function( sketch ) {
         uni.resetGridRandom();
         sketch.redraw();
         break;
-      case 80:
-        if (uni.painter.mode === PAINT) {
-          uni.painter.mode = RUN;
-          uni.painter.paintQueue = [];
-        } else {
-          uni.clearGrid();
-          uni.painter.mode = PAINT;
-        }
     };
   };
 };

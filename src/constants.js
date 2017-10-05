@@ -3,7 +3,6 @@ const CONSTANTS = {
   HEX_START_ANGLE: (Math.PI / 6),
   TWO_PI: Math.PI * 2,
   RUN: 'RUN',
-  PAINT: 'PAINT',
   RING: 'RING',
   DEFAULT: 'DEFAULT',
   STAMPS: {

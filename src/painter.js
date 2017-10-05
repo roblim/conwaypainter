@@ -45,12 +45,23 @@ class Painter {
   }
 
   renderCursor() {
+    if (this.sketch.mouseX < (this.cellSize * 2) ||
+        this.sketch.mouseY < this.cellSize ||
+        this.sketch.mouseX > (this.universe.width - this.cellSize) ||
+        this.sketch.mouseY > (this.universe.height - this.cellSize)) {
+      return;
+    }
     this.sketch.push();
+    this.sketch.strokeWeight(2);
     let cursor = this.cursors[DEFAULT];
     if (!this.sketch.mouseIsPressed) {
-      this.sketch.stroke('white')
+      this.sketch.stroke('blue');
+      this.sketch.noFill();
+    } else {
+      this.sketch.noStroke();
+      this.sketch.noFill();
     }
-    if (this.stamp && this.mode === PAINT) {
+    if (this.stamp) {
       cursor = this.cursors[this.stamp];
     }
     cursor();
@@ -58,20 +69,18 @@ class Painter {
   }
 
   hexCursor() {
-    this.drawHex(this.sketch.mouseX, this.sketch.mouseY);
+    const cell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
+    this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
   }
 
   ringCursor() {
-    this.sketch.push();
     this.stampQueue = [];
-    this.sketch.stroke('white');
     const cursorCell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
     const stampCellCoords = cursorCell.neighborCoords.map(coord => {
       const cell = this.universe.getCell(coord[0], coord[1]);
       this.stampQueue.push(cell);
       this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
     })
-    this.sketch.pop();
   }
 
   setStamp() {
@@ -108,9 +117,9 @@ class Painter {
     this.sketch.push();
     this.sketch.fill('yellow');
     // this.sketch.stroke('yellow');
+    this.universe.setCell(x, y, status);
     this.drawHex(x,y);
     this.sketch.pop();
-    this.paintQueue.push(this.universe.setCell(x, y, status));
   }
 
   render() {
@@ -120,6 +129,7 @@ class Painter {
         this.renderGrid();
         break;
       case PAINT:
+        this.paintQueue.map(cell => this.plotCell(cell));
         this.paintQueue.map(cell => this.plotCell(cell));
         // switch(this.stamp) {
         //   case RING:
