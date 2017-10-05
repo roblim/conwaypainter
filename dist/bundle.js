@@ -74,10 +74,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-$('html, body').on('touchmove', function(e){
-     //prevent native touch activity like scrolling
-     e.preventDefault();
-});
+// $('html, body').on('touchmove', function(e){
+//      //prevent native touch activity like scrolling
+//      e.preventDefault();
+// });
 
 const {
         RUN,
