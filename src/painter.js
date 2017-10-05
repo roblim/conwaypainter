@@ -7,7 +7,8 @@ const {
         HEX_START_ANGLE,
         TWO_PI,
         RUN,
-        PAINT
+        PAINT,
+        RING
       } = CONSTANTS;
 
 class Painter {
@@ -18,17 +19,20 @@ class Painter {
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
     this.mode = RUN;
+    this.stamp = RING;
+    this.stampTemp = null;
     this.paintQueue = [];
+    this.stampQueue = [];
   }
 
   plotCell(cell) {
     this.sketch.push();
     if (cell.alive === 1) {
-      this.sketch.stroke('yellow');
-      // this.sketch.fill('blue');
+      // this.sketch.stroke('yellow');
+      this.sketch.fill('yellow');
     } else if (cell.alive === 2) {
-      this.sketch.stroke('yellow');
-      // this.sketch.fill('orange');
+      // this.sketch.stroke('yellow');
+      this.sketch.fill('yellow');
     }
     this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y)
     this.sketch.pop();
@@ -39,6 +43,26 @@ class Painter {
     this.sketch.stroke('white');
     this.drawHex(this.sketch.mouseX, this.sketch.mouseY);
     this.sketch.pop();
+  }
+
+  ringCursor() {
+    this.sketch.push();
+    this.stampQueue = [];
+    this.sketch.stroke('white');
+    const cursorCell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
+    const stampCellCoords = cursorCell.neighborCoords.map(coord => {
+      const cell = this.universe.getCell(coord[0], coord[1]);
+      this.stampQueue.push(cell);
+      this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
+    })
+    this.sketch.pop();
+  }
+
+  setStamp() {
+    this.stampQueue.map(cell => {
+      this.paintCell(cell.pixelCoord.x, cell.pixelCoord.y, 1);
+    });
+    this.paintQueue.concat(this.stampQueue);
   }
 
   drawHex(x, y) {
@@ -66,7 +90,8 @@ class Painter {
 
   paintCell(x, y, status) {
     this.sketch.push();
-    this.sketch.stroke('yellow');
+    this.sketch.fill('yellow');
+    // this.sketch.stroke('yellow');
     this.drawHex(x,y);
     this.sketch.pop();
     this.paintQueue.push(this.universe.setCell(x, y, status));
@@ -80,6 +105,11 @@ class Painter {
         break;
       case PAINT:
         this.paintQueue.map(cell => this.plotCell(cell));
+        switch(this.stamp) {
+          case RING:
+            this.ringCursor();
+            break;
+        }
         break;
       default:
         this.renderGrid();

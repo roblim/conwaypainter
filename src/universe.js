@@ -79,6 +79,11 @@ class Universe {
     return this.grid[s][q + Math.floor(s / 2)];
   }
 
+  getCellPixel(x, y) {
+    const hexCoord = this.pixelToHex(x, y);
+    return this.getCell(hexCoord.q, hexCoord.s);
+  }
+
   setCell(x, y, status) {
     const hexCoord = this.pixelToHex(x, y);
     const cell = this.getCell(hexCoord.q, hexCoord.s);

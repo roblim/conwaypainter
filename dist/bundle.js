@@ -81,7 +81,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 const {
         RUN,
-        PAINT
+        PAINT,
+        RING
       } = __WEBPACK_IMPORTED_MODULE_1__constants__["a" /* default */];
 
 const p5Canvas = function( sketch ) {
@@ -102,7 +103,7 @@ const p5Canvas = function( sketch ) {
 
   sketch.draw = function() {
     sketch.background('black');
-    // uni.painter.hexCursor();
+    uni.painter.hexCursor();
     uni.render();
     fpsCounter();
 
@@ -151,30 +152,64 @@ const p5Canvas = function( sketch ) {
   }
 
   sketch.mousePressed = function() {
-  };
-
-  sketch.mouseClicked = function() {
     if (uni.painter.mode === PAINT) {
-      uni.painter.paintCell(
-        sketch.mouseX,
-        sketch.mouseY,
-        1);
+      uni.painter.stampTemp = uni.painter.stamp;
+      uni.painter.stamp = null;
+      switch(uni.painter.stampTemp) {
+        case RING:
+          uni.painter.setStamp();
+          break;
+        default:
+          uni.painter.paintCell(
+            sketch.mouseX,
+            sketch.mouseY,
+            1);
+          break;
+      };
     }
   };
 
   sketch.mouseReleased = function() {
+    if (uni.painter.mode === PAINT) {
+      uni.painter.stamp = uni.painter.stampTemp;
+      uni.painter.stampTemp = null;
+    }
   };
+
+  sketch.mouseClicked = function() {
+    if (uni.painter.mode === PAINT) {
+      switch(uni.painter.stamp) {
+        case RING:
+          uni.painter.setStamp();
+          break;
+        default:
+          uni.painter.paintCell(
+            sketch.mouseX,
+            sketch.mouseY,
+            1);
+          break;
+      };
+    }
+  };
+
 
   sketch.mouseDragged = function() {
     if (uni.painter.mode === PAINT) {
-      uni.painter.paintCell(
-        sketch.mouseX,
-        sketch.mouseY,
-        1);
-      uni.painter.paintCell(
-        sketch.pmouseX,
-        sketch.pmouseY,
-        1);
+      switch(uni.painter.stampTemp) {
+        case RING:
+          uni.painter.setStamp();
+          break;
+        default:
+          uni.painter.paintCell(
+            sketch.mouseX,
+            sketch.mouseY,
+            1);
+          uni.painter.paintCell(
+            sketch.pmouseX,
+            sketch.pmouseY,
+            1);
+          break;
+      };
     } else {
       uni.setCell(
         sketch.mouseX,
@@ -314,6 +349,11 @@ class Universe {
 
   getCell(q, s) {
     return this.grid[s][q + Math.floor(s / 2)];
+  }
+
+  getCellPixel(x, y) {
+    const hexCoord = this.pixelToHex(x, y);
+    return this.getCell(hexCoord.q, hexCoord.s);
   }
 
   setCell(x, y, status) {
@@ -467,7 +507,11 @@ const CONSTANTS = {
   HEX_START_ANGLE: (Math.PI / 6),
   TWO_PI: Math.PI * 2,
   RUN: 'RUN',
-  PAINT: 'PAINT'
+  PAINT: 'PAINT',
+  RING: 'RING',
+  STAMPS: {
+    
+  }
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (CONSTANTS);
@@ -490,7 +534,8 @@ const {
         HEX_START_ANGLE,
         TWO_PI,
         RUN,
-        PAINT
+        PAINT,
+        RING
       } = __WEBPACK_IMPORTED_MODULE_2__constants__["a" /* default */];
 
 class Painter {
@@ -501,17 +546,20 @@ class Painter {
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
     this.mode = RUN;
+    this.stamp = RING;
+    this.stampTemp = null;
     this.paintQueue = [];
+    this.stampQueue = [];
   }
 
   plotCell(cell) {
     this.sketch.push();
     if (cell.alive === 1) {
-      this.sketch.stroke('yellow');
-      // this.sketch.fill('blue');
+      // this.sketch.stroke('yellow');
+      this.sketch.fill('yellow');
     } else if (cell.alive === 2) {
-      this.sketch.stroke('yellow');
-      // this.sketch.fill('orange');
+      // this.sketch.stroke('yellow');
+      this.sketch.fill('yellow');
     }
     this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y)
     this.sketch.pop();
@@ -522,6 +570,26 @@ class Painter {
     this.sketch.stroke('white');
     this.drawHex(this.sketch.mouseX, this.sketch.mouseY);
     this.sketch.pop();
+  }
+
+  ringCursor() {
+    this.sketch.push();
+    this.stampQueue = [];
+    this.sketch.stroke('white');
+    const cursorCell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
+    const stampCellCoords = cursorCell.neighborCoords.map(coord => {
+      const cell = this.universe.getCell(coord[0], coord[1]);
+      this.stampQueue.push(cell);
+      this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
+    })
+    this.sketch.pop();
+  }
+
+  setStamp() {
+    this.stampQueue.map(cell => {
+      this.paintCell(cell.pixelCoord.x, cell.pixelCoord.y, 1);
+    });
+    this.paintQueue.concat(this.stampQueue);
   }
 
   drawHex(x, y) {
@@ -549,7 +617,8 @@ class Painter {
 
   paintCell(x, y, status) {
     this.sketch.push();
-    this.sketch.stroke('yellow');
+    this.sketch.fill('yellow');
+    // this.sketch.stroke('yellow');
     this.drawHex(x,y);
     this.sketch.pop();
     this.paintQueue.push(this.universe.setCell(x, y, status));
@@ -563,6 +632,11 @@ class Painter {
         break;
       case PAINT:
         this.paintQueue.map(cell => this.plotCell(cell));
+        switch(this.stamp) {
+          case RING:
+            this.ringCursor();
+            break;
+        }
         break;
       default:
         this.renderGrid();

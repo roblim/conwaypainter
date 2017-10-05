@@ -8,7 +8,8 @@ import CONSTANTS from './constants';
 
 const {
         RUN,
-        PAINT
+        PAINT,
+        RING
       } = CONSTANTS;
 
 const p5Canvas = function( sketch ) {
@@ -29,7 +30,7 @@ const p5Canvas = function( sketch ) {
 
   sketch.draw = function() {
     sketch.background('black');
-    // uni.painter.hexCursor();
+    uni.painter.hexCursor();
     uni.render();
     fpsCounter();
 
@@ -78,30 +79,64 @@ const p5Canvas = function( sketch ) {
   }
 
   sketch.mousePressed = function() {
-  };
-
-  sketch.mouseClicked = function() {
     if (uni.painter.mode === PAINT) {
-      uni.painter.paintCell(
-        sketch.mouseX,
-        sketch.mouseY,
-        1);
+      uni.painter.stampTemp = uni.painter.stamp;
+      uni.painter.stamp = null;
+      switch(uni.painter.stampTemp) {
+        case RING:
+          uni.painter.setStamp();
+          break;
+        default:
+          uni.painter.paintCell(
+            sketch.mouseX,
+            sketch.mouseY,
+            1);
+          break;
+      };
     }
   };
 
   sketch.mouseReleased = function() {
+    if (uni.painter.mode === PAINT) {
+      uni.painter.stamp = uni.painter.stampTemp;
+      uni.painter.stampTemp = null;
+    }
   };
+
+  sketch.mouseClicked = function() {
+    if (uni.painter.mode === PAINT) {
+      switch(uni.painter.stamp) {
+        case RING:
+          uni.painter.setStamp();
+          break;
+        default:
+          uni.painter.paintCell(
+            sketch.mouseX,
+            sketch.mouseY,
+            1);
+          break;
+      };
+    }
+  };
+
 
   sketch.mouseDragged = function() {
     if (uni.painter.mode === PAINT) {
-      uni.painter.paintCell(
-        sketch.mouseX,
-        sketch.mouseY,
-        1);
-      uni.painter.paintCell(
-        sketch.pmouseX,
-        sketch.pmouseY,
-        1);
+      switch(uni.painter.stampTemp) {
+        case RING:
+          uni.painter.setStamp();
+          break;
+        default:
+          uni.painter.paintCell(
+            sketch.mouseX,
+            sketch.mouseY,
+            1);
+          uni.painter.paintCell(
+            sketch.pmouseX,
+            sketch.pmouseY,
+            1);
+          break;
+      };
     } else {
       uni.setCell(
         sketch.mouseX,
