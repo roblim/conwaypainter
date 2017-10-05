@@ -1,5 +1,6 @@
 import Universe from './universe';
 import CONSTANTS from './constants';
+import Interface from './interface';
 
 const {
         RUN,
@@ -9,14 +10,16 @@ const {
 
 const p5Canvas = function( sketch ) {
   const width = sketch.windowWidth * 0.97;
-  const height = sketch.windowHeight * 0.96;
+  const height = sketch.windowHeight - 40;
   const cellSize = 8;
 
   const uni = new Universe(width, height, cellSize, sketch);
+  const ui = new Interface(sketch, uni);
 
   sketch.setup = function() {
     sketch.createCanvas(width, height);
     sketch.cursor(sketch.CROSS);
+    ui.interfaceSetup();
   };
 
   sketch.draw = function() {
@@ -57,10 +60,12 @@ const p5Canvas = function( sketch ) {
           sketch.mouseX,
           sketch.mouseY,
           1);
+        if (uni.painter.mode === RUN) {
         uni.painter.paintCell(
           sketch.pmouseX,
           sketch.pmouseY,
           1);
+        }
         break;
     };
     return false;
@@ -107,10 +112,12 @@ const p5Canvas = function( sketch ) {
           sketch.mouseX,
           sketch.mouseY,
           1);
-        uni.painter.paintCell(
-          sketch.pmouseX,
-          sketch.pmouseY,
-          1);
+          if (uni.painter.mode === RUN) {
+          uni.painter.paintCell(
+            sketch.pmouseX,
+            sketch.pmouseY,
+            1);
+          }
         break;
     };
   }
@@ -125,24 +132,26 @@ const p5Canvas = function( sketch ) {
     return false;
   };
 
-  // sketch.keyPressed = function() {
-  //   switch(sketch.keyCode) {
-  //     case 32:
-  //       if (uni.painter.mode === RUN) {
-  //         uni.painter.mode = null;
-  //       } else if (uni.painter.mode === null) {
-  //         uni.painter.mode = RUN;
-  //       }
-  //       break;
-  //     case sketch.BACKSPACE:
-  //       uni.clearGrid();
-  //       break;
-  //     case sketch.ENTER:
-  //       uni.resetGridRandom();
-  //       sketch.redraw();
-  //       break;
-  //   };
-  // };
+  sketch.keyPressed = function() {
+    switch(sketch.keyCode) {
+      case 32:
+        if (uni.painter.mode === RUN) {
+          uni.painter.mode = null;
+        } else if (uni.painter.mode === null) {
+          uni.painter.mode = RUN;
+        }
+        break;
+      case sketch.BACKSPACE:
+        uni.clearGrid();
+        break;
+      case sketch.ENTER:
+        uni.resetGridRandom();
+        sketch.redraw();
+        break;
+    };
+  };
+
+
 };
 
 var myp5 = new p5(p5Canvas, 'sketch');

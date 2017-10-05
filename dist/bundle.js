@@ -71,6 +71,8 @@
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__universe__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__constants__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__interface__ = __webpack_require__(5);
+
 
 
 
@@ -82,14 +84,16 @@ const {
 
 const p5Canvas = function( sketch ) {
   const width = sketch.windowWidth * 0.97;
-  const height = sketch.windowHeight * 0.96;
+  const height = sketch.windowHeight - 40;
   const cellSize = 8;
 
   const uni = new __WEBPACK_IMPORTED_MODULE_0__universe__["a" /* default */](width, height, cellSize, sketch);
+  const ui = new __WEBPACK_IMPORTED_MODULE_2__interface__["a" /* default */](sketch, uni);
 
   sketch.setup = function() {
     sketch.createCanvas(width, height);
     sketch.cursor(sketch.CROSS);
+    ui.interfaceSetup();
   };
 
   sketch.draw = function() {
@@ -130,10 +134,12 @@ const p5Canvas = function( sketch ) {
           sketch.mouseX,
           sketch.mouseY,
           1);
+        if (uni.painter.mode === RUN) {
         uni.painter.paintCell(
           sketch.pmouseX,
           sketch.pmouseY,
           1);
+        }
         break;
     };
     return false;
@@ -180,10 +186,12 @@ const p5Canvas = function( sketch ) {
           sketch.mouseX,
           sketch.mouseY,
           1);
-        uni.painter.paintCell(
-          sketch.pmouseX,
-          sketch.pmouseY,
-          1);
+          if (uni.painter.mode === RUN) {
+          uni.painter.paintCell(
+            sketch.pmouseX,
+            sketch.pmouseY,
+            1);
+          }
         break;
     };
   }
@@ -198,24 +206,26 @@ const p5Canvas = function( sketch ) {
     return false;
   };
 
-  // sketch.keyPressed = function() {
-  //   switch(sketch.keyCode) {
-  //     case 32:
-  //       if (uni.painter.mode === RUN) {
-  //         uni.painter.mode = null;
-  //       } else if (uni.painter.mode === null) {
-  //         uni.painter.mode = RUN;
-  //       }
-  //       break;
-  //     case sketch.BACKSPACE:
-  //       uni.clearGrid();
-  //       break;
-  //     case sketch.ENTER:
-  //       uni.resetGridRandom();
-  //       sketch.redraw();
-  //       break;
-  //   };
-  // };
+  sketch.keyPressed = function() {
+    switch(sketch.keyCode) {
+      case 32:
+        if (uni.painter.mode === RUN) {
+          uni.painter.mode = null;
+        } else if (uni.painter.mode === null) {
+          uni.painter.mode = RUN;
+        }
+        break;
+      case sketch.BACKSPACE:
+        uni.clearGrid();
+        break;
+      case sketch.ENTER:
+        uni.resetGridRandom();
+        sketch.redraw();
+        break;
+    };
+  };
+
+
 };
 
 var myp5 = new p5(p5Canvas, 'sketch');
@@ -362,7 +372,7 @@ const NEIGHBORS = [
 ];
 
 class Cell {
-  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3) )) {
+  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3) * .4)) {
     this.coord = { q, r, s };
     this.alive = alive;
     this.universe = universe;
@@ -526,6 +536,7 @@ class Painter {
   }
 
   renderCursor() {
+    this.stampQueue = [];
     if (this.sketch.mouseX < (this.cellSize * 2) ||
         this.sketch.mouseY < this.cellSize ||
         this.sketch.mouseX > (this.universe.width - this.cellSize) ||
@@ -555,7 +566,7 @@ class Painter {
   }
 
   ringCursor() {
-    this.stampQueue = [];
+
     const cursorCell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
     const stampCellCoords = cursorCell.neighborCoords.map(coord => {
       const cell = this.universe.getCell(coord[0], coord[1]);
@@ -616,6 +627,66 @@ class Painter {
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Painter);
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(3);
+
+
+const {
+        RUN,
+      } = __WEBPACK_IMPORTED_MODULE_0__constants__["a" /* default */];
+
+class Interface {
+  constructor(sketch, universe) {
+    this.sketch = sketch;
+    this.universe = universe;
+    this.painter = universe.painter;
+
+    this.startToggle = this.startToggle.bind(this);
+    this.randomize = this.randomize.bind(this);
+    this.clear = this.clear.bind(this);
+  }
+
+  interfaceSetup() {
+    this.playButton();
+    this.randomizeButton();
+    this.clearButton();
+  }
+
+  playButton() {
+    const playButton = this.sketch.createButton("Play/Pause");
+    playButton.mousePressed(this.startToggle)
+  }
+
+  randomizeButton() {
+    const randomizeButton = this.sketch.createButton("Randomize");
+    randomizeButton.mousePressed(this.randomize);
+  }
+
+  clearButton() {
+    const clearButton = this.sketch.createButton("Clear");
+    clearButton.mousePressed(this.clear);
+  }
+
+  startToggle() {
+    this.painter.mode === RUN ? (this.painter.mode = null) : (this.painter.mode = RUN);
+  }
+
+  randomize() {
+    this.universe.resetGridRandom();
+  }
+
+  clear() {
+    this.universe.clearGrid();
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Interface);
 
 
 /***/ })

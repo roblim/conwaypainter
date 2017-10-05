@@ -8,7 +8,7 @@ const NEIGHBORS = [
 ];
 
 class Cell {
-  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3) )) {
+  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3) * .4)) {
     this.coord = { q, r, s };
     this.alive = alive;
     this.universe = universe;

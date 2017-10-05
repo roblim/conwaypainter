@@ -41,6 +41,7 @@ class Painter {
   }
 
   renderCursor() {
+    this.stampQueue = [];
     if (this.sketch.mouseX < (this.cellSize * 2) ||
         this.sketch.mouseY < this.cellSize ||
         this.sketch.mouseX > (this.universe.width - this.cellSize) ||
@@ -70,7 +71,7 @@ class Painter {
   }
 
   ringCursor() {
-    this.stampQueue = [];
+
     const cursorCell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
     const stampCellCoords = cursorCell.neighborCoords.map(coord => {
       const cell = this.universe.getCell(coord[0], coord[1]);
