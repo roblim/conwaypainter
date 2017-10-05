@@ -188,13 +188,13 @@ const p5Canvas = function( sketch ) {
 
   sketch.keyPressed = function() {
     switch(sketch.keyCode) {
-      case 32:
-        if (uni.painter.mode === RUN) {
-          uni.painter.mode = null;
-        } else if (uni.painter.mode === null) {
-          uni.painter.mode = RUN;
-        }
-        break;
+      // case 32:
+      //   if (uni.painter.mode === RUN) {
+      //     uni.painter.mode = null;
+      //   } else if (uni.painter.mode === null) {
+      //     uni.painter.mode = RUN;
+      //   }
+      //   break;
       case sketch.BACKSPACE:
         uni.clearGrid();
         break;
