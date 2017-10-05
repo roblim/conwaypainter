@@ -1,7 +1,7 @@
 import Universe from './universe';
 import CONSTANTS from './constants';
 
-$('html, body').on('touchstart touchmove', function(e){
+$('html, body').on('touchmove', function(e){
      //prevent native touch activity like scrolling
      e.preventDefault();
 });

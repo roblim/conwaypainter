@@ -74,7 +74,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-$('html, body').on('touchstart touchmove', function(e){
+$('html, body').on('touchmove', function(e){
      //prevent native touch activity like scrolling
      e.preventDefault();
 });
