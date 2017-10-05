@@ -1,11 +1,6 @@
 import Universe from './universe';
 import CONSTANTS from './constants';
 
-// $('html, body').on('touchmove', function(e){
-//      //prevent native touch activity like scrolling
-//      e.preventDefault();
-// });
-
 const {
         RUN,
         RING,
@@ -29,7 +24,6 @@ const p5Canvas = function( sketch ) {
     uni.render();
     uni.painter.renderCursor();
     fpsCounter();
-
   };
 
   const fpsCounter = function() {
@@ -39,7 +33,7 @@ const p5Canvas = function( sketch ) {
     var fps = sketch.frameRate();
     sketch.text("FPS: " + fps.toFixed(2), 10, sketch.height - 10);
     sketch.pop();
-  }
+  };
 
   sketch.touchStarted = function() {
     uni.painter.paintCell(
@@ -47,7 +41,7 @@ const p5Canvas = function( sketch ) {
       sketch.mouseY,
       1);
     return false;
-  }
+  };
 
   sketch.touchMoved = function() {
     uni.painter.paintCell(
@@ -58,9 +52,8 @@ const p5Canvas = function( sketch ) {
       sketch.pmouseX,
       sketch.pmouseY,
       1);
-    }
     return false;
-  }
+  };
 
   sketch.mousePressed = function() {
     switch(uni.painter.stamp) {
@@ -94,31 +87,31 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.mouseDragged = function() {
-      switch(uni.painter.stamp) {
-        case RING:
-          uni.painter.setStamp();
-          break;
-        default:
-          uni.painter.paintCell(
-            sketch.mouseX,
-            sketch.mouseY,
-            1);
-          uni.painter.paintCell(
-            sketch.pmouseX,
-            sketch.pmouseY,
-            1);
-          break;
-      };
+    switch(uni.painter.stamp) {
+      case RING:
+        uni.painter.setStamp();
+        break;
+      default:
+        uni.painter.paintCell(
+          sketch.mouseX,
+          sketch.mouseY,
+          1);
+        uni.painter.paintCell(
+          sketch.pmouseX,
+          sketch.pmouseY,
+          1);
+        break;
+    };
   }
 
   sketch.deviceShaken = function() {
     if (uni.painter.mode === RUN) {
       uni.painter.mode = null;
-      uni.clearGrid;
+      uni.clearGrid();
     } else {
       uni.painter.mode = RUN;
     }
-  }
+  };
 
   sketch.keyPressed = function() {
     switch(sketch.keyCode) {
