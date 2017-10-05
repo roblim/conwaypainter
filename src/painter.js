@@ -66,11 +66,20 @@ class Painter {
   }
 
   hexCursor() {
+    const pCell = this.universe.getCellPixel(this.sketch.pmouseX, this.sketch.pmouseY);
     const cell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
+    this.drawHex(pCell.pixelCoord.x, pCell.pixelCoord.y);
     this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
   }
 
   ringCursor() {
+
+    const pCursorCell = this.universe.getCellPixel(this.sketch.pmouseX, this.sketch.pmouseY);
+    const pStampCellCoords = pCursorCell.neighborCoords.map(coord => {
+      const cell = this.universe.getCell(coord[0], coord[1]);
+      this.stampQueue.push(cell);
+      this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
+    })
 
     const cursorCell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
     const stampCellCoords = cursorCell.neighborCoords.map(coord => {
