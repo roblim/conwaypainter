@@ -16,6 +16,7 @@ class Interface {
     this.clear = this.clear.bind(this);
     this.setHexStamp = this.setHexStamp.bind(this);
     this.setRingStamp = this.setRingStamp.bind(this);
+    this.eraserToggle = this.eraserToggle.bind(this);
   }
 
   interfaceSetup() {
@@ -24,6 +25,7 @@ class Interface {
     this.clearButton();
     this.hexStampButton();
     this.ringStampButton();
+    this.eraserToggleButton();
   }
 
   playButton() {
@@ -51,6 +53,11 @@ class Interface {
     ringStampButton.mousePressed(this.setRingStamp);
   }
 
+  eraserToggleButton() {
+    const eraserToggleButton = this.sketch.createButton('Eraser Toggle');
+    eraserToggleButton.mousePressed(this.eraserToggle);
+  }
+
   startToggle() {
     this.painter.mode === RUN ? (this.painter.mode = null) : (this.painter.mode = RUN);
   }
@@ -69,6 +76,10 @@ class Interface {
 
   setRingStamp() {
     this.painter.stamp = RING;
+  }
+
+  eraserToggle() {
+    this.painter.eraser ? (this.painter.eraser = 0) : (this.painter.eraser = 1);
   }
 }
 

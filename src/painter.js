@@ -20,7 +20,7 @@ class Painter {
     this.gridHeight = universe.gridHeight;
     this.mode = RUN;
     this.stamp = null;
-    this.stampTemp = null;
+    this.eraser = 0;
     this.stampQueue = [];
 
     this.cursors = {
@@ -40,26 +40,44 @@ class Painter {
     this.sketch.pop();
   }
 
+  outOfBounds() {
+    return (this.sketch.mouseX < (this.cellSize * 2) ||
+        this.sketch.mouseY < (this.cellSize) ||
+        this.sketch.mouseX > (this.universe.width - this.cellSize) ||
+        this.sketch.mouseY > (this.universe.height - this.cellSize)) ||
+        (this.sketch.pmouseX < (this.cellSize * 2) ||
+            this.sketch.pmouseY < (this.cellSize) ||
+            this.sketch.pmouseX > (this.universe.width - this.cellSize) ||
+            this.sketch.pmouseY > (this.universe.height - this.cellSize))
+  }
+
   renderCursor() {
     this.stampQueue = [];
-    if (this.sketch.mouseX < (this.cellSize * 2) ||
-        this.sketch.mouseY < this.cellSize ||
-        this.sketch.mouseX > (this.universe.width - this.cellSize) ||
-        this.sketch.mouseY > (this.universe.height - this.cellSize)) {
-      return;
-    }
+
+    // if (this.sketch.mouseX < (this.cellSize * 2) ||
+    //     this.sketch.mouseY < this.cellSize * 2 ||
+    //     this.sketch.mouseX > (this.universe.width - this.cellSize) ||
+    //     this.sketch.mouseY > (this.universe.height - this.cellSize)) {
+    //   return;
+    // }
+
     this.sketch.push();
-    this.sketch.strokeWeight(2);
     let cursor = this.cursors[DEFAULT];
-    if (!this.sketch.mouseIsPressed) {
-      this.sketch.stroke('blue');
+    this.sketch.strokeWeight(2);
+    this.sketch.stroke('blue');
+
+    if (!this.eraser) {
       this.sketch.noFill();
     } else {
-      this.sketch.stroke('blue');
-      this.sketch.noFill();
+      this.sketch.fill('rgba(255, 255, 255, .9)');
     }
+
     if (this.stamp) {
       cursor = this.cursors[this.stamp];
+    }
+    if (this.outOfBounds()) {
+      this.sketch.pop();
+      return;
     }
     cursor();
     this.sketch.pop();
@@ -91,7 +109,7 @@ class Painter {
 
   setStamp() {
     this.stampQueue.map(cell => {
-      this.paintCell(cell.pixelCoord.x, cell.pixelCoord.y, 1);
+      this.paintCell(cell.pixelCoord.x, cell.pixelCoord.y);
     });
   }
 
@@ -118,10 +136,12 @@ class Painter {
     }
   }
 
-  paintCell(x, y, status) {
+  paintCell(x, y) {
+    let status;
+    this.eraser ? (status = 0) : (status = 1);
+
     this.sketch.push();
     this.sketch.fill('yellow');
-    // this.sketch.stroke('yellow');
     this.universe.setCell(x, y, status);
     this.drawHex(x,y);
     this.sketch.pop();

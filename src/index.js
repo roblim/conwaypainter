@@ -9,7 +9,7 @@ const {
       } = CONSTANTS;
 
 const p5Canvas = function( sketch ) {
-  const width = sketch.windowWidth * 0.97;
+  const width = sketch.windowWidth * 0.98;
   const height = sketch.windowHeight - 40;
   const cellSize = 8;
 
@@ -41,8 +41,8 @@ const p5Canvas = function( sketch ) {
   sketch.touchStarted = function() {
     uni.painter.paintCell(
       sketch.mouseX,
-      sketch.mouseY,
-      1);
+      sketch.mouseY
+      );
     return false;
   };
 
@@ -58,13 +58,13 @@ const p5Canvas = function( sketch ) {
       default:
         uni.painter.paintCell(
           sketch.mouseX,
-          sketch.mouseY,
-          1);
+          sketch.mouseY
+          );
         if (uni.painter.mode === RUN) {
         uni.painter.paintCell(
           sketch.pmouseX,
-          sketch.pmouseY,
-          1);
+          sketch.pmouseY
+          );
         }
         break;
     };
@@ -79,8 +79,8 @@ const p5Canvas = function( sketch ) {
       default:
         uni.painter.paintCell(
           sketch.mouseX,
-          sketch.mouseY,
-          1);
+          sketch.mouseY
+          );
         break;
     };
   };
@@ -96,8 +96,8 @@ const p5Canvas = function( sketch ) {
       default:
         uni.painter.paintCell(
           sketch.mouseX,
-          sketch.mouseY,
-          1);
+          sketch.mouseY
+          );
         break;
     };
   };
@@ -110,13 +110,13 @@ const p5Canvas = function( sketch ) {
       default:
         uni.painter.paintCell(
           sketch.mouseX,
-          sketch.mouseY,
-          1);
+          sketch.mouseY
+          );
           if (uni.painter.mode === RUN) {
           uni.painter.paintCell(
             sketch.pmouseX,
-            sketch.pmouseY,
-            1);
+            sketch.pmouseY
+            );
           }
         break;
     };
