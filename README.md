@@ -20,7 +20,7 @@ Conway Painter departs from its classic counterpart by using a regular hexagonal
 state 1 cell if the headcount is 2 or 4, and dies otherwise (state 0)
 
 
-![alt text](http://www.giphy.com/gifs/l0IsIcCi8IB8Qnigg "Conway Painter")
+![alt text](https://media.giphy.com/media/l0IsIcCi8IB8Qnigg/giphy.gif "Conway Painter")
 
 ## Architecture and Technologies
 
