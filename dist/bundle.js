@@ -754,32 +754,32 @@ class Interface {
   }
 
   playButton(parentId) {
-    const playButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">pause</i><i class="material-icons">play_arrow</i></div>');
+    const playButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">pause</i><i class="material-icons">play_arrow</i></span>');
     playButton.mousePressed(this.startToggle).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
   randomizeButton(parentId) {
-    const randomizeButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">shuffle</i><span>&nbsp;Randomize</span></div>');
+    const randomizeButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">shuffle</i><span>&nbsp;Randomize</span></span>');
     randomizeButton.mousePressed(this.randomize).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
   clearButton(parentId) {
-    const clearButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">backspace</i><span>&nbsp;Clear</span></div>');
+    const clearButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">backspace</i><span>&nbsp;Clear</span></span>');
     clearButton.mousePressed(this.clear).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
   hexStampButton(parentId) {
-    const hexStampButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">brush</i><span>&nbsp;Plain Brush</span></div>');
+    const hexStampButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">brush</i><span>&nbsp;Plain Brush</span></span>');
     hexStampButton.mousePressed(this.setHexStamp).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
   ringStampButton(parentId) {
-    const ringStampButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">radio_button_unchecked</i><span>&nbsp;Ring Brush</span></div>');
+    const ringStampButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">radio_button_unchecked</i><span>&nbsp;Ring Brush</span></span>');
     ringStampButton.mousePressed(this.setRingStamp).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
   eraserToggleButton(parentId) {
-    const eraserToggleButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">tab</i><span>&nbsp;Eraser Mode</span></div>');
+    const eraserToggleButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">tab</i><span>&nbsp;Eraser Mode</span></span>');
     eraserToggleButton.mousePressed(this.eraserToggle).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
