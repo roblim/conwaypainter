@@ -9,8 +9,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/addons/p5.dom.js"></script>
-    <script src="./dist/bundle.js" charset="utf-8"></script>
     <link rel="stylesheet" href="./src/index.css">
+    <script src="./dist/bundle.js" charset="utf-8"></script>
     <title></title>
   </head>
   <body>
@@ -28,7 +28,7 @@
           <a href="https://github.com/roblim" target="_blank"><i class="fa fa-github-alt" aria-hidden="true"></i></a>
           <a href="https://www.linkedin.com/in/limrobert/" target="_blank"><i class="fa fa-linkedin-square" aria-hidden="true"></i></a>
           <a href="https://www.robertmoseslim.com/"><i class="fa fa-user-circle-o" aria-hidden="true"></i></a>
-          <a href="#"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+          <i class="fa fa-question-circle" id="open-modal-button" aria-hidden="true"></i>
         </div>
 
         <div id="ui-control-container">
@@ -40,6 +40,87 @@
         </div>
       </div>
 
+      <!-- The Modal -->
+      <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="close"><i class="material-icons">close</i></span>
+            <h2>Conway Painter</h2>
+          </div>
+          <div class="modal-body">
+            <p>
+            Conway Painter is a game inspired by <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway's Game of Life</a>,
+            a well-known cellular automaton invented by mathematician John Conway.
+            </p>
+            <p>
+            A cellular automaton consists of a regular grid of cells (the universe), with each
+            cell having a finite number of states. At set time intervals, the
+            state of each cell is updated according to a set of rules governed
+            by the state of other cells in each cell's "neighborhood".
+            When implemented visually, cellular automata can result in complex
+            and beautiful patterns and behavior, each with it's own personality.
+            </p>
+            <p>
+            In the classic Conway's Game of Life, the universe consists of
+            a regular square grid, with each cell being either "alive" or "dead",
+            and influenced by an eight-cell neighborhood.
+            </p>
+            <p>
+            Conway Painter departs from its classic counterpart by using a regular
+            hexagonal grid, with each cell having one of three states (maybe "alive", "bored", or "dead"?),
+            and influenced by a six-cell neighborhood.
+            </p>
+            <p>
+            To play Conway Painter, simply paint on the canvas and watch as your worlds come to life and
+            evolve. As you paint, you are bringing dead cells back to life. If you paint while
+            the universe is active, the spawned cells immediately start affecting their
+            neighborhood. Play around with painting different shapes to see what worlds you can create!
+            </p>
+
+
+          </div>
+          <div class="modal-footer">
+            <div class="modal-social-links">
+              <a href="https://github.com/roblim" target="_blank"><i class="fa fa-github-alt" aria-hidden="true"></i></a>&nbsp;&nbsp;&nbsp;
+              <a href="https://www.linkedin.com/in/limrobert/" target="_blank"><i class="fa fa-linkedin-square" aria-hidden="true"></i></a>&nbsp;&nbsp;&nbsp;
+              <a href="https://www.robertmoseslim.com/"><i class="fa fa-user-circle-o" aria-hidden="true"></i></a>
+            </div>
+          </div>
+        </div>
+&nbsp;
+      </div>
+
     </div>
+
+    <script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("open-modal-button");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    </script>
+
   </body>
 </html>

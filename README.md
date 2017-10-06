@@ -1,63 +1,108 @@
-# conwaypainter
+# Conway Painter
 ---
 
 
-## Background and Overview
+## Overview
 
-Conway's Game of Life (CGOL) is a well-known cellular automaton invented by mathematician John Conway. ConwayPainter is a tool for creating and interacting with Conway's Game of Life universes.  
+Conway Painter is a game inspired by Conway's Game of Life (CGOL), a well-known cellular automaton invented by mathematician John Conway. A cellular automaton consists of a regular grid of cells, with each cell having a finite number of states. At set time intervals, the state of each cell is updated according to a set of rules governed by the state of other cells in each cell's "neighborhood".
 
-A cellular automaton consists of a regular grid of cells, with each cell having a finite number of states. At set time intervals, the state of each cell is updated according to a set of rules governed by the state of other cells in each cell's "neighborhood". When implemented visually, cellular automata can result in complex and beautiful patterns and animations, each with it's own personality.
+With Conway Painter, you can interact with the underlying cellular automaton by painting cells on
+a canvas that represents the automaton's universe. As you paint on the canvas, cells are brought to life, able to start affecting the states of cells in their neighborhood. The universe can be paused or cleared, and then restarted, allowing you to create different seed shapes to explore the patterns
+and behaviors that can emerge. A slider is provided to enable you to adjust the generation time.
 
-In Conway's Game of Life, each cell is either "alive" or "dead" and is affected by eight neighbors - those cells that are vertically, horizontally, or diagonally adjacent. At each time interval, each cell's state is updated according to the following rules:
+In the classic Conway's Game of Life, the universe consists of a regular square grid, with each cell being either "alive" or "dead", and influenced by an eight-cell neighborhood.
 
-1. Any live cell with fewer than two live neighbors dies.
-2. Any live cell with two or three live neighbors lives.
-3. Any live cell with more than three live neighbors dies.
-4. Any dead cell with exactly three live neighbors becomes a live cell.
+Conway Painter departs from its classic counterpart by using a regular hexagonal grid, with each cell having one of three states - 0, 1, or 2 - and is influenced by a six-cell neighborhood. At each time interval, each cell's state is updated according to a new set of rules, based of the sum of cell states in the 6-cell neighborhood (the "headcount"):
 
-An initial pattern is created by assigning the state of each cell (randomly or in a desired shape) and then subsequent generations are created by applying the above rules simultaneously to every cell in the universe.
+- A dead cell (state 0), reanimates to a state 1 cell if the headcount is exactly 4
+- A state 1 cell evolves into a state 2 cell if the headcount is 1, 2, 3, 4, or 6, otherwise, it dies (state 0)
+- A state 2 cell maintains its state if the headcount is exactly 1, regresses to a
+state 1 cell if the headcount is 2 or 4, and dies otherwise (state 0)
 
-Users of ConwayPainter create the seed state by "painting" on a canvas, using either a basic brush tool, or one of a set of pre-defined "stamps". These stamps are patterns that are known to have interesting visual effects or behavior.
 
-## Functionality and MVP
+![alt text](http://www.giphy.com/gifs/l0IsIcCi8IB8Qnigg "Conway Painter")
 
-In ConwayPainter, users will be able to:  
-- [ ] create/clear a CGOL seed state using a "painting" interface
-- [ ] select from a palette of known patterns
-- [ ] start/pause/restart universe propagation
-- [ ] control the speed of propagation
+## Architecture and Technologies
 
-## Wireframes
-
-The app will consist of a single screen with the universe canvas, start/top/reset controls, a propagation speed slider, a stamp/brush palette, nav links to Github and LinkedIn, and an About modal.
-
-### [Wireframes](https://github.com/roblim/conwaypainter/blob/master/conway_painter_wireframe.png)
-
-## Architecture an Technologies
-
-This project will be implemented with the following technologies:
+This project is implemented with the following technologies:
 - vanilla JavaScript for overall functionality/logic
-- p5.js for drawing/rendering the CGOL universe and implementing the painting interface. Using p5.js vs. direct HTML5 Canvas manipulation will allow me to spend more time playing with variations on the classic square grid implementation of CGOL.
+- p5.js for drawing/rendering the CGOL universe and implementing the painting interface
 - Webpack to bundle and serve up scripts
 
 #### Scripts
 - universe.js: logic for creating/updating visual elements in CGOL universe (cells)
-- life_rules.js: logic for governing universe propagation rules
-- painter.js: logic for paint interface/user interaction with CGOL universe
-- palette.js logic for stamp palette
+- cell.js: cell objects for maintaining cell state (cube and pixel coordinates, state, etc.) and logic for determining new state, polling state of neighbors, and interconverting between coordinate systems
+- painter.js: logic for rendering grid and cells into p5.js canvas
+- interface.js: logic for UI elements
 
-## Implementation Timeline
+## Challenges
 
-**Day 1:** Set up project skeleton (webpack, index.html file, config files, etc.). Flesh out architecture and script functions. Get up the speed with p5.js - enough to implement static universe (single snapshot)
+That primary challenge of implementing Conway Painter was in dealing with the hexagonal grid. Due to the offset nature of a hexagonal grid, a typical rectangular coordinate system is unsuitable without modification (offsetting coordinates). Offsetting a rectangular coordinate system is complicated and tedious to manage, so a modified cubic/axial coordinate system was chosen.
 
-**Day 2:** Implement active CGOL universe (animating) and begin implementing paint/input interface
+Using cubic coordinates was necessary in implementing the neighbor polling logic (how cells determine who is in their neighborhood), but these coordinates are unsuitable for rendering purposes, where pixels are mapped according to a rectangular coordinate system. To deal with this, functions were implemented to interconvert between coordinate systems, properly generate and seed the universe grid, as well as functions to efficiently pull appropriate cells from the two-dimensional array used for implementing the grid.
 
-**Day 3:** Complete paint/input interface
+Citation: https://www.redblobgames.com/grids/hexagons/
 
-**Day 4:** Implement and style web UI
+```javascript
+generateGrid(seed) {
+  let q;
+  let r;
+  let qStart = 1;
+  let rStart = 0;
+  let grid = [];
+  let tempRow = [];
 
-## Bonus Features
-- [ ] Users are also able to create their own custom stamp palette.
-- [ ] Users can paint with colors.
-- [ ] Users can select from a palette of other life-like rules.
-- [ ] Incorporation of a sound component with a basic sequencer interface.
+  for (let i = 0; i < this.gridHeight; i++) {
+    if (i % 2 === 0) {
+      qStart --;
+    }
+    q = qStart;
+    if (i % 2 !== 0) {
+      rStart --;
+    }
+    r = rStart;
+
+    for (let j = 0; j < this.gridWidth; j++) {
+      const s = (-q - r);
+      tempRow.push(new Cell(q, r, s, this, seed));
+      q++;
+      r--;
+    };
+    grid.push(tempRow);
+    tempRow = [];
+  };
+  return grid;
+}
+
+hexToPixel(q, s, size) {
+  const x = (Math.sqrt(3) * q + Math.sqrt(3) / 2 * s) * size;
+  const y = (3 / 2) * s * size;
+  const pixelCoord = { x: x, y: y };
+  return pixelCoord;
+}
+
+pixelToHex(x, y) {
+  const q = (x * (Math.sqrt(3) / 3) - (y / 3)) / this.cellSize;
+  const s = (y * (2 / 3)) / this.cellSize;
+  return this.roundHex(q, s);
+}
+
+roundHex(q, s) {
+  let r = -q - s
+  let rQ = Math.round(q);
+  let rR = Math.round(r);
+  let rS = Math.round(s);
+  const qDiff = Math.abs(rQ - q);
+  const rDiff = Math.abs(rR - r);
+  const sDiff = Math.abs(rS - s);
+
+  if (qDiff > rDiff && qDiff > sDiff) {
+    rQ = -rR - rS;
+  } else if (rDiff > sDiff) {
+    rR = -rQ - rS;
+  } else {
+    rS = -rQ - rR;
+  }
+  return { q: rQ, s: rS };
+}
+```
