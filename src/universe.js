@@ -108,6 +108,19 @@ class Universe {
     this.grid = this.tempGrid;
   }
 
+  logActiveCells() {
+    const activeCellCoords = [];
+    for (let i = 0; i < this.gridHeight; i++) {
+      for (let j = 0; j < this.gridWidth; j++) {
+        const cell = this.grid[i][j];
+        if (cell.alive > 0) {
+          activeCellCoords.push(cell.coord);
+        }
+      };
+    };
+    console.log(activeCellCoords);
+  }
+
   render() {
     this.painter.render();
   }

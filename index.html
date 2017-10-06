@@ -2,15 +2,42 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="./src/index.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Bungee+Shade" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500" rel="stylesheet">
+    <script src="https://use.fontawesome.com/0d445b6c29.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/addons/p5.dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/addons/p5.dom.js"></script>
     <script src="./dist/bundle.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="./src/index.css">
     <title></title>
   </head>
   <body>
-    <div id="sketch" />
-    <div
+    <div class="app-container">
+
+      <div id="sketch">
+      </div>
+
+      <div id="app-title">
+        Conway Painter
+      </div>
+
+      <div id="social-links">
+        <a href="https://github.com/roblim" target="_blank"><i class="fa fa-github-alt" aria-hidden="true"></i></a>
+        <a href="https://www.linkedin.com/in/limrobert/" target="_blank"><i class="fa fa-linkedin-square" aria-hidden="true"></i></a>
+        <a href="https://www.robertmoseslim.com/"><i class="fa fa-user-circle-o" aria-hidden="true"></i></a>
+        <a href="#"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+      </div>
+
+        <div id="ui-controls">
+        </div>
+        <div id="speed-slider">
+          <span></span>
+        </div>
+
+      <div id="bottom-overlay"/>
+
+    </div>
   </body>
 </html>

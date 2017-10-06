@@ -5,36 +5,51 @@ import Interface from './interface';
 const {
         RUN,
         RING,
-        DEFAULT
+        DEFAULT,
+        INSPECT
       } = CONSTANTS;
 
 const p5Canvas = function( sketch ) {
-  const width = sketch.windowWidth * 0.98;
-  const height = sketch.windowHeight - 40;
-  const cellSize = 8;
+  let width = sketch.windowWidth +50;
+  let height = sketch.windowHeight + 50;
+  let cellSize = 8;
 
-  const uni = new Universe(width, height, cellSize, sketch);
-  const ui = new Interface(sketch, uni);
+  let uni = new Universe(width, height, cellSize, sketch);
+  let ui = new Interface(sketch, uni);
+
+
 
   sketch.setup = function() {
-    sketch.createCanvas(width, height);
+    let canvas = sketch.createCanvas(width, height);
+    canvas.position(-50, -50);
     sketch.cursor(sketch.CROSS);
-    ui.interfaceSetup();
+    ui.interfaceSetup('ui-controls');
+
   };
 
   sketch.draw = function() {
+    sketch.frameRate(ui.slider.value());
     sketch.background('black');
     uni.render();
     uni.painter.renderCursor();
     fpsCounter();
   };
 
+  sketch.windowResized = function() {
+    width = sketch.windowWidth +50;
+    height = sketch.windowHeight + 50;
+    sketch.resizeCanvas(width, height);
+    uni = new Universe(width, height, cellSize, sketch);
+    ui.universe = uni;
+    ui.painter = uni.painter;
+  }
+
   const fpsCounter = function() {
     sketch.push();
     sketch.fill(255);
     sketch.stroke(0);
     var fps = sketch.frameRate();
-    sketch.text("FPS: " + fps.toFixed(2), 10, sketch.height - 10);
+    sketch.text("FPS: " + fps.toFixed(2), sketch.width - 80, sketch.height - 85);
     sketch.pop();
   };
 
@@ -72,35 +87,46 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.mousePressed = function() {
-    switch(uni.painter.stamp) {
-      case RING:
-        uni.painter.setStamp();
+    switch(uni.painter.mode) {
+      case INSPECT:
+        console.log(
+          uni.getCellPixel(sketch.mouseX, sketch.mouseY)
+        );
         break;
       default:
-        uni.painter.paintCell(
-          sketch.mouseX,
-          sketch.mouseY
+        switch(uni.painter.stamp) {
+          case RING:
+          uni.painter.setStamp();
+          break;
+          default:
+          uni.painter.paintCell(
+            sketch.mouseX,
+            sketch.mouseY
           );
+          break;
+        };
         break;
-    };
+    }
+
   };
 
   sketch.mouseReleased = function() {
   };
 
-  sketch.mouseClicked = function() {
-    switch(uni.painter.stamp) {
-      case RING:
-        uni.painter.setStamp();
-        break;
-      default:
-        uni.painter.paintCell(
-          sketch.mouseX,
-          sketch.mouseY
-          );
-        break;
-    };
-  };
+  // sketch.mouseClicked = function() {
+  //
+  //   switch(uni.painter.stamp) {
+  //     case RING:
+  //       uni.painter.setStamp();
+  //       break;
+  //     default:
+  //       uni.painter.paintCell(
+  //         sketch.mouseX,
+  //         sketch.mouseY
+  //         );
+  //       break;
+  //   };
+  // };
 
   sketch.mouseDragged = function() {
     switch(uni.painter.stamp) {

@@ -1,0 +1,101 @@
+.material-icons { font-size: 18px; }
+
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: black;
+  font-family: 'Rubik', sans-serif;
+}
+
+.app-container {
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  z-index: 0;
+}
+
+#ui-controls {
+  display: flex;
+  z-index: 1;
+  height: 38px;
+  position: fixed;
+  bottom: 30px;
+  right: 10px;
+}
+
+#speed-slider {
+  display: flex;
+  /*flex-direction: row-reverse;*/
+  font-weight: lighter;
+  bottom: 10px;
+  right: 550px;
+  align-items: center;
+  position: fixed;
+  z-index: 1;
+  color: white;
+}
+
+button {
+  font-size: 16px;
+  outline: none;
+
+  background-color: white;
+  border: 2px solid black;
+  height: 32px;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+button:hover {
+  border: 2px solid teal;
+  color: teal;
+  cursor: pointer;
+}
+
+.button-contents {
+  display: flex;
+  align-items: center;
+}
+
+#social-links {
+  padding: 10px;
+  border-radius: 5px;
+  bottom: 8px;
+  left: 520px;
+  position: fixed;
+  font-size: 30px;
+  z-index: 1;
+}
+
+.fa {
+  color: white;
+}
+
+#app-title {
+  font-family: 'Bungee Shade', cursive;
+  padding: 10px;
+  border-radius: 10px;
+  color: white;
+  position: absolute;
+  z-index: 1;
+  font-size: 40px;
+  bottom: 5px;
+  left: 10px;
+}
+
+#app-title:hover {
+  cursor: default;
+}
+
+#bottom-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 0;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 80px;
+}

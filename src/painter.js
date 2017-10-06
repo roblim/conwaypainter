@@ -8,7 +8,8 @@ const {
         TWO_PI,
         RUN,
         RING,
-        DEFAULT
+        DEFAULT,
+        INSPECT
       } = CONSTANTS;
 
 class Painter {
@@ -21,6 +22,7 @@ class Painter {
     this.mode = RUN;
     this.stamp = null;
     this.eraser = 0;
+    this.mouseOver = null;
     this.stampQueue = [];
 
     this.cursors = {
@@ -54,17 +56,13 @@ class Painter {
   renderCursor() {
     this.stampQueue = [];
 
-    // if (this.sketch.mouseX < (this.cellSize * 2) ||
-    //     this.sketch.mouseY < this.cellSize * 2 ||
-    //     this.sketch.mouseX > (this.universe.width - this.cellSize) ||
-    //     this.sketch.mouseY > (this.universe.height - this.cellSize)) {
-    //   return;
-    // }
-
     this.sketch.push();
     let cursor = this.cursors[DEFAULT];
-    this.sketch.strokeWeight(2);
-    this.sketch.stroke('blue');
+
+    if (!this.mouseOver) {
+      this.sketch.strokeWeight(2);
+      this.sketch.stroke('blue');
+    }
 
     if (!this.eraser) {
       this.sketch.noFill();

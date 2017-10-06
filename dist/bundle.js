@@ -79,36 +79,51 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 const {
         RUN,
         RING,
-        DEFAULT
+        DEFAULT,
+        INSPECT
       } = __WEBPACK_IMPORTED_MODULE_1__constants__["a" /* default */];
 
 const p5Canvas = function( sketch ) {
-  const width = sketch.windowWidth * 0.98;
-  const height = sketch.windowHeight - 40;
-  const cellSize = 8;
+  let width = sketch.windowWidth +50;
+  let height = sketch.windowHeight + 50;
+  let cellSize = 8;
 
-  const uni = new __WEBPACK_IMPORTED_MODULE_0__universe__["a" /* default */](width, height, cellSize, sketch);
-  const ui = new __WEBPACK_IMPORTED_MODULE_2__interface__["a" /* default */](sketch, uni);
+  let uni = new __WEBPACK_IMPORTED_MODULE_0__universe__["a" /* default */](width, height, cellSize, sketch);
+  let ui = new __WEBPACK_IMPORTED_MODULE_2__interface__["a" /* default */](sketch, uni);
+
+
 
   sketch.setup = function() {
-    sketch.createCanvas(width, height);
+    let canvas = sketch.createCanvas(width, height);
+    canvas.position(-50, -50);
     sketch.cursor(sketch.CROSS);
-    ui.interfaceSetup();
+    ui.interfaceSetup('ui-controls');
+
   };
 
   sketch.draw = function() {
+    sketch.frameRate(ui.slider.value());
     sketch.background('black');
     uni.render();
     uni.painter.renderCursor();
     fpsCounter();
   };
 
+  sketch.windowResized = function() {
+    width = sketch.windowWidth +50;
+    height = sketch.windowHeight + 50;
+    sketch.resizeCanvas(width, height);
+    uni = new __WEBPACK_IMPORTED_MODULE_0__universe__["a" /* default */](width, height, cellSize, sketch);
+    ui.universe = uni;
+    ui.painter = uni.painter;
+  }
+
   const fpsCounter = function() {
     sketch.push();
     sketch.fill(255);
     sketch.stroke(0);
     var fps = sketch.frameRate();
-    sketch.text("FPS: " + fps.toFixed(2), 10, sketch.height - 10);
+    sketch.text("FPS: " + fps.toFixed(2), sketch.width - 80, sketch.height - 85);
     sketch.pop();
   };
 
@@ -146,35 +161,46 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.mousePressed = function() {
-    switch(uni.painter.stamp) {
-      case RING:
-        uni.painter.setStamp();
+    switch(uni.painter.mode) {
+      case INSPECT:
+        console.log(
+          uni.getCellPixel(sketch.mouseX, sketch.mouseY)
+        );
         break;
       default:
-        uni.painter.paintCell(
-          sketch.mouseX,
-          sketch.mouseY
+        switch(uni.painter.stamp) {
+          case RING:
+          uni.painter.setStamp();
+          break;
+          default:
+          uni.painter.paintCell(
+            sketch.mouseX,
+            sketch.mouseY
           );
+          break;
+        };
         break;
-    };
+    }
+
   };
 
   sketch.mouseReleased = function() {
   };
 
-  sketch.mouseClicked = function() {
-    switch(uni.painter.stamp) {
-      case RING:
-        uni.painter.setStamp();
-        break;
-      default:
-        uni.painter.paintCell(
-          sketch.mouseX,
-          sketch.mouseY
-          );
-        break;
-    };
-  };
+  // sketch.mouseClicked = function() {
+  //
+  //   switch(uni.painter.stamp) {
+  //     case RING:
+  //       uni.painter.setStamp();
+  //       break;
+  //     default:
+  //       uni.painter.paintCell(
+  //         sketch.mouseX,
+  //         sketch.mouseY
+  //         );
+  //       break;
+  //   };
+  // };
 
   sketch.mouseDragged = function() {
     switch(uni.painter.stamp) {
@@ -348,6 +374,19 @@ class Universe {
     this.grid = this.tempGrid;
   }
 
+  logActiveCells() {
+    const activeCellCoords = [];
+    for (let i = 0; i < this.gridHeight; i++) {
+      for (let j = 0; j < this.gridWidth; j++) {
+        const cell = this.grid[i][j];
+        if (cell.alive > 0) {
+          activeCellCoords.push(cell.coord);
+        }
+      };
+    };
+    console.log(activeCellCoords);
+  }
+
   render() {
     this.painter.render();
   }
@@ -477,6 +516,7 @@ const CONSTANTS = {
   RUN: 'RUN',
   RING: 'RING',
   DEFAULT: 'DEFAULT',
+  INSPECT: 'INSPECT',
   STAMPS: {
 
   }
@@ -503,7 +543,8 @@ const {
         TWO_PI,
         RUN,
         RING,
-        DEFAULT
+        DEFAULT,
+        INSPECT
       } = __WEBPACK_IMPORTED_MODULE_2__constants__["a" /* default */];
 
 class Painter {
@@ -516,6 +557,7 @@ class Painter {
     this.mode = RUN;
     this.stamp = null;
     this.eraser = 0;
+    this.mouseOver = null;
     this.stampQueue = [];
 
     this.cursors = {
@@ -549,17 +591,13 @@ class Painter {
   renderCursor() {
     this.stampQueue = [];
 
-    // if (this.sketch.mouseX < (this.cellSize * 2) ||
-    //     this.sketch.mouseY < this.cellSize * 2 ||
-    //     this.sketch.mouseX > (this.universe.width - this.cellSize) ||
-    //     this.sketch.mouseY > (this.universe.height - this.cellSize)) {
-    //   return;
-    // }
-
     this.sketch.push();
     let cursor = this.cursors[DEFAULT];
-    this.sketch.strokeWeight(2);
-    this.sketch.stroke('blue');
+
+    if (!this.mouseOver) {
+      this.sketch.strokeWeight(2);
+      this.sketch.stroke('blue');
+    }
 
     if (!this.eraser) {
       this.sketch.noFill();
@@ -668,7 +706,8 @@ class Painter {
 
 const {
         RUN,
-        RING
+        RING,
+        INSPECT
       } = __WEBPACK_IMPORTED_MODULE_0__constants__["a" /* default */];
 
 class Interface {
@@ -683,47 +722,78 @@ class Interface {
     this.setHexStamp = this.setHexStamp.bind(this);
     this.setRingStamp = this.setRingStamp.bind(this);
     this.eraserToggle = this.eraserToggle.bind(this);
+    this.setInspectMode = this.setInspectMode.bind(this);
+    this.logActiveCells = this.logActiveCells.bind(this);
+    this.mouseOver = this.mouseOver.bind(this);
+    this.mouseOut = this.mouseOut.bind(this);
   }
 
-  interfaceSetup() {
-    this.playButton();
-    this.randomizeButton();
-    this.clearButton();
-    this.hexStampButton();
-    this.ringStampButton();
-    this.eraserToggleButton();
+  interfaceSetup(parentId) {
+    this.playButton(parentId);
+    this.clearButton(parentId);
+    this.randomizeButton(parentId);
+    this.hexStampButton(parentId);
+    this.ringStampButton(parentId);
+    this.eraserToggleButton(parentId);
+
+    this.slider = this.sketch.createSlider(1, 60, 60);
+    this.slider.parent('speed-slider');
+    this.slider.style('width', '140px');
+
+    // Developer Tools
+    // this.inspectModeButton(parentId);
+    // this.logActiveCellsButton(parentId);
   }
 
-  playButton() {
-    const playButton = this.sketch.createButton("Play/Pause");
-    playButton.mousePressed(this.startToggle)
+  pausePlay() {
+    if (this.painter.mode === RUN) {
+      return '<i class="material-icons">pause</i>';
+    } else {
+      return '<i class="material-icons">play_arrow</i>';
+    }
   }
 
-  randomizeButton() {
-    const randomizeButton = this.sketch.createButton("Randomize");
-    randomizeButton.mousePressed(this.randomize);
+  playButton(parentId) {
+    const playButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">pause</i><i class="material-icons">play_arrow</i></div>');
+    playButton.mousePressed(this.startToggle).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
-  clearButton() {
-    const clearButton = this.sketch.createButton("Clear");
-    clearButton.mousePressed(this.clear);
+  randomizeButton(parentId) {
+    const randomizeButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">shuffle</i><span>&nbsp;Randomize</span></div>');
+    randomizeButton.mousePressed(this.randomize).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
-  hexStampButton() {
-    const hexStampButton = this.sketch.createButton('Default Brush');
-    hexStampButton.mousePressed(this.setHexStamp);
+  clearButton(parentId) {
+    const clearButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">backspace</i><span>&nbsp;Clear</span></div>');
+    clearButton.mousePressed(this.clear).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
-  ringStampButton() {
-    const ringStampButton = this.sketch.createButton('Ring Brush');
-    ringStampButton.mousePressed(this.setRingStamp);
+  hexStampButton(parentId) {
+    const hexStampButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">brush</i><span>&nbsp;Plain Brush</span></div>');
+    hexStampButton.mousePressed(this.setHexStamp).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
-  eraserToggleButton() {
-    const eraserToggleButton = this.sketch.createButton('Eraser Toggle');
-    eraserToggleButton.mousePressed(this.eraserToggle);
+  ringStampButton(parentId) {
+    const ringStampButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">radio_button_unchecked</i><span>&nbsp;Ring Brush</span></div>');
+    ringStampButton.mousePressed(this.setRingStamp).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
+  eraserToggleButton(parentId) {
+    const eraserToggleButton = this.sketch.createButton('<div class="button-contents"><i class="material-icons">tab</i><span>&nbsp;Eraser Mode</span></div>');
+    eraserToggleButton.mousePressed(this.eraserToggle).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
+  }
+
+  inspectModeButton(parentId) {
+    const inspectModeButton = this.sketch.createButton('Inspect Mode');
+    inspectModeButton.mousePressed(this.setInspectMode).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
+  }
+
+  logActiveCellsButton(parentId) {
+    const logActiveCellsButton = this.sketch.createButton('Log Active Cells');
+    logActiveCellsButton.mousePressed(this.logActiveCells).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
+  }
+
+  // Button Callbacks
   startToggle() {
     this.painter.mode === RUN ? (this.painter.mode = null) : (this.painter.mode = RUN);
   }
@@ -746,6 +816,23 @@ class Interface {
 
   eraserToggle() {
     this.painter.eraser ? (this.painter.eraser = 0) : (this.painter.eraser = 1);
+  }
+
+  setInspectMode() {
+    this.painter.mode = INSPECT;
+    this.painter.stamp = null;
+  }
+
+  logActiveCells() {
+    this.universe.logActiveCells();
+  }
+
+  mouseOver() {
+    this.painter.mouseOver = 1;
+  }
+
+  mouseOut() {
+    this.painter.mouseOver = 0;
   }
 }
 
