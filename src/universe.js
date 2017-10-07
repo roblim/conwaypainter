@@ -12,6 +12,7 @@ class Universe {
     this.tempGrid = this.generateGrid(seed);
     this.painter = new Painter(this, sketch);
   }
+
   generateGrid(seed) {
     let q;
     let r;
@@ -50,12 +51,15 @@ class Universe {
     this.grid = this.generateGrid();
   }
 
+  // converts a rectangular pixel coordinate to an axial coordinate
   pixelToHex(x, y) {
     const q = (x * (Math.sqrt(3) / 3) - (y / 3)) / this.cellSize;
     const s = (y * (2 / 3)) / this.cellSize;
     return this.roundHex(q, s);
   }
 
+  // pixel coordinates can be floats and can yield non-integer axial coordinates
+  // this function rounds non-integer axial coordinates
   roundHex(q, s) {
     let r = -q - s
     let rQ = Math.round(q);
@@ -75,23 +79,25 @@ class Universe {
     return { q: rQ, s: rS };
   }
 
+  // returns cell at a given axial coordinate
   getCell(q, s) {
     return this.grid[s][q + Math.floor(s / 2)];
   }
 
+  // returns cell at a given pixel coordinate
   getCellPixel(x, y) {
     const hexCoord = this.pixelToHex(x, y);
     return this.getCell(hexCoord.q, hexCoord.s);
   }
 
-  setCell(x, y, status) {
+  setCell(x, y, state) {
     const hexCoord = this.pixelToHex(x, y);
     const cell = this.getCell(hexCoord.q, hexCoord.s);
-    cell.alive = status;
+    cell.state = state;
     return cell;
   }
 
-  generationCycle() {
+  updateCellStates() {
     for (let i = 0; i < this.gridHeight; i++) {
       for (let j = 0; j < this.gridWidth; j++) {
         if (i < 1 ||
@@ -99,9 +105,9 @@ class Universe {
             j < 1 ||
             j > (this.gridWidth - 2)
             ) {
-              this.tempGrid[i][j].alive = 0;
+              this.tempGrid[i][j].state = 0;
             } else {
-              this.tempGrid[i][j].alive = this.grid[i][j].newStatus();
+              this.tempGrid[i][j].state = this.grid[i][j].newState();
             }
       };
     };
@@ -113,7 +119,7 @@ class Universe {
     for (let i = 0; i < this.gridHeight; i++) {
       for (let j = 0; j < this.gridWidth; j++) {
         const cell = this.grid[i][j];
-        if (cell.alive > 0) {
+        if (cell.state > 0) {
           activeCellCoords.push(cell.coord);
         }
       };
@@ -124,7 +130,6 @@ class Universe {
   render() {
     this.painter.render();
   }
-
 }
 
 export default Universe;

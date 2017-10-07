@@ -20,10 +20,10 @@ class Painter {
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
     this.mode = RUN;
-    this.stamp = null;
+    this.brush = null;
     this.eraser = 0;
     this.mouseOver = null;
-    this.stampQueue = [];
+    this.brushQueue = [];
 
     this.cursors = {
       RING: this.ringCursor.bind(this),
@@ -33,10 +33,10 @@ class Painter {
 
   plotCell(cell) {
     this.sketch.push();
-    if (cell.alive === 1) {
-      this.sketch.fill('yellow');
-    } else if (cell.alive === 2) {
-      this.sketch.fill('yellow');
+    if (cell.state === 1) {
+      this.sketch.fill('#1CA5B8');
+    } else if (cell.state === 2) {
+      this.sketch.fill('#FF404C');
     }
     this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y)
     this.sketch.pop();
@@ -54,7 +54,7 @@ class Painter {
   }
 
   renderCursor() {
-    this.stampQueue = [];
+    this.brushQueue = [];
 
     this.sketch.push();
     let cursor = this.cursors[DEFAULT];
@@ -70,8 +70,8 @@ class Painter {
       this.sketch.fill('rgba(255, 255, 255, .9)');
     }
 
-    if (this.stamp) {
-      cursor = this.cursors[this.stamp];
+    if (this.brush) {
+      cursor = this.cursors[this.brush];
     }
     if (this.outOfBounds()) {
       this.sketch.pop();
@@ -91,22 +91,22 @@ class Painter {
   ringCursor() {
 
     const pCursorCell = this.universe.getCellPixel(this.sketch.pmouseX, this.sketch.pmouseY);
-    const pStampCellCoords = pCursorCell.neighborCoords.map(coord => {
+    const pBrushCellCoords = pCursorCell.neighborCoords.map(coord => {
       const cell = this.universe.getCell(coord[0], coord[1]);
-      this.stampQueue.push(cell);
+      this.brushQueue.push(cell);
       this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
     })
 
     const cursorCell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
-    const stampCellCoords = cursorCell.neighborCoords.map(coord => {
+    const brushCellCoords = cursorCell.neighborCoords.map(coord => {
       const cell = this.universe.getCell(coord[0], coord[1]);
-      this.stampQueue.push(cell);
+      this.brushQueue.push(cell);
       this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
     })
   }
 
-  setStamp() {
-    this.stampQueue.map(cell => {
+  setBrush() {
+    this.brushQueue.map(cell => {
       this.paintCell(cell.pixelCoord.x, cell.pixelCoord.y);
     });
   }
@@ -126,7 +126,7 @@ class Painter {
   renderGrid() {
     for (let i = 0; i < this.gridHeight; i++) {
       for (let j = 0; j < this.gridWidth; j++) {
-        if (!this.universe.grid[i][j].alive) { continue; }
+        if (!this.universe.grid[i][j].state) { continue; }
         this.sketch.push();
         this.plotCell(this.universe.grid[i][j]);
         this.sketch.pop();
@@ -135,12 +135,12 @@ class Painter {
   }
 
   paintCell(x, y) {
-    let status;
-    this.eraser ? (status = 0) : (status = 1);
+    let state;
+    this.eraser ? (state = 0) : (state = 1);
 
     this.sketch.push();
     this.sketch.fill('yellow');
-    this.universe.setCell(x, y, status);
+    this.universe.setCell(x, y, state);
     this.drawHex(x,y);
     this.sketch.pop();
   }
@@ -148,7 +148,7 @@ class Painter {
   render() {
     switch(this.mode) {
       case RUN:
-        this.universe.generationCycle();
+        this.universe.updateCellStates();
         this.renderGrid();
         break;
       default:

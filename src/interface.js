@@ -15,8 +15,8 @@ class Interface {
     this.startToggle = this.startToggle.bind(this);
     this.randomize = this.randomize.bind(this);
     this.clear = this.clear.bind(this);
-    this.setHexStamp = this.setHexStamp.bind(this);
-    this.setRingStamp = this.setRingStamp.bind(this);
+    this.setHexBrush = this.setHexBrush.bind(this);
+    this.setRingBrush = this.setRingBrush.bind(this);
     this.eraserToggle = this.eraserToggle.bind(this);
     this.setInspectMode = this.setInspectMode.bind(this);
     this.logActiveCells = this.logActiveCells.bind(this);
@@ -28,8 +28,8 @@ class Interface {
     this.playButton(parentId);
     this.clearButton(parentId);
     this.randomizeButton(parentId);
-    this.hexStampButton(parentId);
-    this.ringStampButton(parentId);
+    this.hexBrushButton(parentId);
+    this.ringBrushButton(parentId);
     this.eraserToggleButton(parentId);
 
     this.slider = this.sketch.createSlider(1, 60, 60);
@@ -64,14 +64,14 @@ class Interface {
     clearButton.mousePressed(this.clear).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
-  hexStampButton(parentId) {
-    const hexStampButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">brush</i><span>&nbsp;Plain Brush</span></span>');
-    hexStampButton.mousePressed(this.setHexStamp).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
+  hexBrushButton(parentId) {
+    const hexBrushButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">brush</i><span>&nbsp;Plain Brush</span></span>');
+    hexBrushButton.mousePressed(this.setHexBrush).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
-  ringStampButton(parentId) {
-    const ringStampButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">radio_button_unchecked</i><span>&nbsp;Ring Brush</span></span>');
-    ringStampButton.mousePressed(this.setRingStamp).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
+  ringBrushButton(parentId) {
+    const ringBrushButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">radio_button_unchecked</i><span>&nbsp;Ring Brush</span></span>');
+    ringBrushButton.mousePressed(this.setRingBrush).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
   eraserToggleButton(parentId) {
@@ -102,12 +102,12 @@ class Interface {
     this.universe.clearGrid();
   }
 
-  setHexStamp() {
-    this.painter.stamp = null;
+  setHexBrush() {
+    this.painter.brush = null;
   }
 
-  setRingStamp() {
-    this.painter.stamp = RING;
+  setRingBrush() {
+    this.painter.brush = RING;
   }
 
   eraserToggle() {
@@ -116,7 +116,7 @@ class Interface {
 
   setInspectMode() {
     this.painter.mode = INSPECT;
-    this.painter.stamp = null;
+    this.painter.brush = null;
   }
 
   logActiveCells() {

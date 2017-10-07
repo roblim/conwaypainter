@@ -10,7 +10,7 @@ With Conway Painter, you can interact with the underlying cellular automaton by 
 a canvas that represents the automaton's universe. As you paint on the canvas, cells are brought to life, able to start affecting the states of cells in their neighborhood. The universe can be paused or cleared, and then restarted, allowing you to create different seed shapes to explore the patterns
 and behaviors that can emerge. A slider is provided to enable you to adjust the generation time.
 
-In the classic Conway's Game of Life, the universe consists of a regular square grid, with each cell being either "alive" or "dead", and influenced by an eight-cell neighborhood.
+In the classic Conway's Game of Life, the universe consists of a regular square grid, with each cell being either "state" or "dead", and influenced by an eight-cell neighborhood.
 
 Conway Painter departs from its classic counterpart by using a regular hexagonal grid, with each cell having one of three states - 0, 1, or 2 - and is influenced by a six-cell neighborhood. At each time interval, each cell's state is updated according to a new set of rules, based of the sum of cell states in the 6-cell neighborhood (the "headcount"):
 

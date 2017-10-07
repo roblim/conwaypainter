@@ -6,9 +6,14 @@ const CONSTANTS = {
   RING: 'RING',
   DEFAULT: 'DEFAULT',
   INSPECT: 'INSPECT',
-  STAMPS: {
-
-  }
+  NEIGHBORS: [
+    [0, -1],
+    [1, -1],
+    [1, 0],
+    [0, 1],
+    [-1, 1],
+    [-1, 0]
+  ]
 };
 
 export default CONSTANTS;

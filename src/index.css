@@ -25,8 +25,6 @@ canvas {
   justify-content: space-between;
   padding: 10px;
   background-color: rgba(0, 0, 0, 0.8);
-  /*margin-right: auto;
-  margin-left: auto;*/
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
 }
@@ -37,10 +35,6 @@ canvas {
   border-radius: 10px;
   color: white;
   font-size: 40px;
-  /*position: fixed;
-  z-index: 1;
-  bottom: 5px;
-  left: 10px;*/
 }
 
 #app-title:hover {
@@ -51,10 +45,6 @@ canvas {
   padding: 10px;
   border-radius: 5px;
   font-size: 30px;
-  /*bottom: 8px;
-  left: 520px;
-  position: fixed;
-  z-index: 1;*/
 }
 
 #social-links i:hover {
@@ -64,12 +54,6 @@ canvas {
 #ui-controls {
   display: flex;
   flex-wrap: wrap;
-  /*flex-flow: wrap;*/
-  /*height: 38px;*/
-  /*z-index: 1;
-  position: fixed;
-  bottom: 30px;
-  right: 10px;*/
 }
 
 button {

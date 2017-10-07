@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -68,9 +68,286 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+const CONSTANTS = {
+  HEX_IN_ANGLE: (Math.PI * 2) / 6,
+  HEX_START_ANGLE: (Math.PI / 6),
+  TWO_PI: Math.PI * 2,
+  RUN: 'RUN',
+  RING: 'RING',
+  DEFAULT: 'DEFAULT',
+  INSPECT: 'INSPECT',
+  NEIGHBORS: [
+    [0, -1],
+    [1, -1],
+    [1, 0],
+    [0, 1],
+    [-1, 1],
+    [-1, 0]
+  ]
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (CONSTANTS);
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cell__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__painter__ = __webpack_require__(4);
+
+
+
+class Universe {
+  constructor(width, height, cellSize, sketch, seed)  {
+    this.width = width;
+    this.height = height;
+    this.cellSize = cellSize;
+    this.gridWidth = Math.floor((width / cellSize) * 0.68);
+    this.gridHeight = Math.floor((height / cellSize) * 0.7);
+    this.grid = this.generateGrid(seed);
+    this.tempGrid = this.generateGrid(seed);
+    this.painter = new __WEBPACK_IMPORTED_MODULE_1__painter__["a" /* default */](this, sketch);
+  }
+
+  generateGrid(seed) {
+    let q;
+    let r;
+    let qStart = 1;
+    let rStart = 0;
+    let grid = [];
+    let tempRow = [];
+
+    for (let i = 0; i < this.gridHeight; i++) {
+      if (i % 2 === 0) {
+        qStart --;
+      }
+      q = qStart;
+      if (i % 2 !== 0) {
+        rStart --;
+      }
+      r = rStart;
+
+      for (let j = 0; j < this.gridWidth; j++) {
+        const s = (-q - r);
+        tempRow.push(new __WEBPACK_IMPORTED_MODULE_0__cell__["a" /* default */](q, r, s, this, seed));
+        q++;
+        r--;
+      };
+      grid.push(tempRow);
+      tempRow = [];
+    };
+    return grid;
+  }
+
+  clearGrid() {
+    this.grid = this.generateGrid(0);
+  }
+
+  resetGridRandom() {
+    this.grid = this.generateGrid();
+  }
+
+  // converts a rectangular pixel coordinate to an axial coordinate
+  pixelToHex(x, y) {
+    const q = (x * (Math.sqrt(3) / 3) - (y / 3)) / this.cellSize;
+    const s = (y * (2 / 3)) / this.cellSize;
+    return this.roundHex(q, s);
+  }
+
+  // pixel coordinates can be floats and can yield non-integer axial coordinates
+  // this function rounds non-integer axial coordinates
+  roundHex(q, s) {
+    let r = -q - s
+    let rQ = Math.round(q);
+    let rR = Math.round(r);
+    let rS = Math.round(s);
+    const qDiff = Math.abs(rQ - q);
+    const rDiff = Math.abs(rR - r);
+    const sDiff = Math.abs(rS - s);
+
+    if (qDiff > rDiff && qDiff > sDiff) {
+      rQ = -rR - rS;
+    } else if (rDiff > sDiff) {
+      rR = -rQ - rS;
+    } else {
+      rS = -rQ - rR;
+    }
+    return { q: rQ, s: rS };
+  }
+
+  // returns cell at a given axial coordinate
+  getCell(q, s) {
+    return this.grid[s][q + Math.floor(s / 2)];
+  }
+
+  // returns cell at a given pixel coordinate
+  getCellPixel(x, y) {
+    const hexCoord = this.pixelToHex(x, y);
+    return this.getCell(hexCoord.q, hexCoord.s);
+  }
+
+  setCell(x, y, state) {
+    const hexCoord = this.pixelToHex(x, y);
+    const cell = this.getCell(hexCoord.q, hexCoord.s);
+    cell.state = state;
+    return cell;
+  }
+
+  updateCellStates() {
+    for (let i = 0; i < this.gridHeight; i++) {
+      for (let j = 0; j < this.gridWidth; j++) {
+        if (i < 1 ||
+            i > (this.gridHeight - 2) ||
+            j < 1 ||
+            j > (this.gridWidth - 2)
+            ) {
+              this.tempGrid[i][j].state = 0;
+            } else {
+              this.tempGrid[i][j].state = this.grid[i][j].newState();
+            }
+      };
+    };
+    this.grid = this.tempGrid;
+  }
+
+  logActiveCells() {
+    const activeCellCoords = [];
+    for (let i = 0; i < this.gridHeight; i++) {
+      for (let j = 0; j < this.gridWidth; j++) {
+        const cell = this.grid[i][j];
+        if (cell.state > 0) {
+          activeCellCoords.push(cell.coord);
+        }
+      };
+    };
+    console.log(activeCellCoords);
+  }
+
+  render() {
+    this.painter.render();
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Universe);
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(0);
+
+
+const { NEIGHBORS } = __WEBPACK_IMPORTED_MODULE_0__constants__["a" /* default */];
+
+class Cell {
+  constructor(q, r, s, universe, state = Math.floor((Math.random() * 3) * .4)) {
+    this.coord = { q, r, s };
+    this.state = state;
+    this.universe = universe;
+    this.pixelCoord = this.hexToPixel(q, s, universe.cellSize);
+    this.neighborCoords = this.getNeighborCoords(q, s);
+  }
+
+  // converts axial coordinate to pixel coordinate
+  hexToPixel(q, s, size) {
+    const x = (Math.sqrt(3) * q + Math.sqrt(3) / 2 * s) * size;
+    const y = (3 / 2) * s * size;
+    const pixelCoord = { x: x, y: y };
+    return pixelCoord;
+  }
+
+  getState(q, s) {
+    const cell = this.universe.getCell(q, s);
+    return cell.state;
+  }
+
+  getHeadcount() {
+    const headcount = this.neighborCoords.reduce((accum, coord) => {
+      return accum + this.getState(coord[0], coord[1]);
+    }, 0);
+    return headcount;
+  }
+
+  newState() {
+    const heads = this.getHeadcount();
+    let newState;
+    switch(this.state) {
+      case 0:
+        if (heads === 4) {
+          newState = 1;} else {
+            newState = 0;
+          }
+        break;
+      case 1:
+        switch(heads) {
+          case 1:
+            newState = 2;
+            break;
+          case 2:
+            newState = 2;
+            break;
+          case 3:
+            newState = 2;
+            break;
+          case 4:
+            newState = 2;
+            break;
+          case 6:
+            newState = 2;
+            break;
+          default:
+            newState = 0;
+            break;
+          };
+        break;
+      case 2:
+        switch(heads) {
+          case 1:
+            newState = 2;
+            break;
+          case 2:
+            newState = 1;
+            break;
+          case 3:
+            newState = 0;
+            break;
+          case 4:
+            newState = 1;
+            break;
+          default:
+            newState = 0;
+            break;
+        };
+        break;
+    };
+    return newState;
+  }
+
+  getNeighborCoords(q, s) {
+    const neighbors = [];
+    NEIGHBORS.forEach(delta => {
+      const coord = [q + delta[0], s + delta[1]];
+      neighbors.push(coord);
+    });
+    return neighbors;
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Cell);
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__universe__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__constants__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__constants__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__interface__ = __webpack_require__(5);
 
 
@@ -91,14 +368,11 @@ const p5Canvas = function( sketch ) {
   let uni = new __WEBPACK_IMPORTED_MODULE_0__universe__["a" /* default */](width, height, cellSize, sketch);
   let ui = new __WEBPACK_IMPORTED_MODULE_2__interface__["a" /* default */](sketch, uni);
 
-
-
   sketch.setup = function() {
     let canvas = sketch.createCanvas(width, height);
     canvas.position(-50, -50);
     sketch.cursor(sketch.CROSS);
     ui.interfaceSetup('ui-controls');
-
   };
 
   sketch.draw = function() {
@@ -140,9 +414,9 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.touchMoved = function() {
-    switch(uni.painter.stamp) {
+    switch(uni.painter.brush) {
       case RING:
-        uni.painter.setStamp();
+        uni.painter.setBrush();
         break;
       default:
         uni.painter.paintCell(
@@ -168,9 +442,9 @@ const p5Canvas = function( sketch ) {
         );
         break;
       default:
-        switch(uni.painter.stamp) {
+        switch(uni.painter.brush) {
           case RING:
-          uni.painter.setStamp();
+          uni.painter.setBrush();
           break;
           default:
           uni.painter.paintCell(
@@ -181,31 +455,14 @@ const p5Canvas = function( sketch ) {
         };
         break;
     }
-
   };
-
   sketch.mouseReleased = function() {
   };
 
-  // sketch.mouseClicked = function() {
-  //
-  //   switch(uni.painter.stamp) {
-  //     case RING:
-  //       uni.painter.setStamp();
-  //       break;
-  //     default:
-  //       uni.painter.paintCell(
-  //         sketch.mouseX,
-  //         sketch.mouseY
-  //         );
-  //       break;
-  //   };
-  // };
-
   sketch.mouseDragged = function() {
-    switch(uni.painter.stamp) {
+    switch(uni.painter.brush) {
       case RING:
-        uni.painter.setStamp();
+        uni.painter.setBrush();
         break;
       default:
         uni.painter.paintCell(
@@ -250,279 +507,9 @@ const p5Canvas = function( sketch ) {
         break;
     };
   };
-
-
 };
 
 var myp5 = new p5(p5Canvas, 'sketch');
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cell__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__painter__ = __webpack_require__(4);
-
-
-
-class Universe {
-  constructor(width, height, cellSize, sketch, seed)  {
-    this.width = width;
-    this.height = height;
-    this.cellSize = cellSize;
-    this.gridWidth = Math.floor((width / cellSize) * 0.68);
-    this.gridHeight = Math.floor((height / cellSize) * 0.7);
-    this.grid = this.generateGrid(seed);
-    this.tempGrid = this.generateGrid(seed);
-    this.painter = new __WEBPACK_IMPORTED_MODULE_1__painter__["a" /* default */](this, sketch);
-  }
-  generateGrid(seed) {
-    let q;
-    let r;
-    let qStart = 1;
-    let rStart = 0;
-    let grid = [];
-    let tempRow = [];
-
-    for (let i = 0; i < this.gridHeight; i++) {
-      if (i % 2 === 0) {
-        qStart --;
-      }
-      q = qStart;
-      if (i % 2 !== 0) {
-        rStart --;
-      }
-      r = rStart;
-
-      for (let j = 0; j < this.gridWidth; j++) {
-        const s = (-q - r);
-        tempRow.push(new __WEBPACK_IMPORTED_MODULE_0__cell__["a" /* default */](q, r, s, this, seed));
-        q++;
-        r--;
-      };
-      grid.push(tempRow);
-      tempRow = [];
-    };
-    return grid;
-  }
-
-  clearGrid() {
-    this.grid = this.generateGrid(0);
-  }
-
-  resetGridRandom() {
-    this.grid = this.generateGrid();
-  }
-
-  pixelToHex(x, y) {
-    const q = (x * (Math.sqrt(3) / 3) - (y / 3)) / this.cellSize;
-    const s = (y * (2 / 3)) / this.cellSize;
-    return this.roundHex(q, s);
-  }
-
-  roundHex(q, s) {
-    let r = -q - s
-    let rQ = Math.round(q);
-    let rR = Math.round(r);
-    let rS = Math.round(s);
-    const qDiff = Math.abs(rQ - q);
-    const rDiff = Math.abs(rR - r);
-    const sDiff = Math.abs(rS - s);
-
-    if (qDiff > rDiff && qDiff > sDiff) {
-      rQ = -rR - rS;
-    } else if (rDiff > sDiff) {
-      rR = -rQ - rS;
-    } else {
-      rS = -rQ - rR;
-    }
-    return { q: rQ, s: rS };
-  }
-
-  getCell(q, s) {
-    return this.grid[s][q + Math.floor(s / 2)];
-  }
-
-  getCellPixel(x, y) {
-    const hexCoord = this.pixelToHex(x, y);
-    return this.getCell(hexCoord.q, hexCoord.s);
-  }
-
-  setCell(x, y, status) {
-    const hexCoord = this.pixelToHex(x, y);
-    const cell = this.getCell(hexCoord.q, hexCoord.s);
-    cell.alive = status;
-    return cell;
-  }
-
-  generationCycle() {
-    for (let i = 0; i < this.gridHeight; i++) {
-      for (let j = 0; j < this.gridWidth; j++) {
-        if (i < 1 ||
-            i > (this.gridHeight - 2) ||
-            j < 1 ||
-            j > (this.gridWidth - 2)
-            ) {
-              this.tempGrid[i][j].alive = 0;
-            } else {
-              this.tempGrid[i][j].alive = this.grid[i][j].newStatus();
-            }
-      };
-    };
-    this.grid = this.tempGrid;
-  }
-
-  logActiveCells() {
-    const activeCellCoords = [];
-    for (let i = 0; i < this.gridHeight; i++) {
-      for (let j = 0; j < this.gridWidth; j++) {
-        const cell = this.grid[i][j];
-        if (cell.alive > 0) {
-          activeCellCoords.push(cell.coord);
-        }
-      };
-    };
-    console.log(activeCellCoords);
-  }
-
-  render() {
-    this.painter.render();
-  }
-
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Universe);
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const NEIGHBORS = [
-  [0, -1],
-  [1, -1],
-  [1, 0],
-  [0, 1],
-  [-1, 1],
-  [-1, 0]
-];
-
-class Cell {
-  constructor(q, r, s, universe, alive = Math.floor((Math.random() * 3) * .4)) {
-    this.coord = { q, r, s };
-    this.alive = alive;
-    this.universe = universe;
-    this.pixelCoord = this.hexToPixel(q, s, universe.cellSize);
-    this.neighborCoords = this.getNeighborCoords(q, s);
-  }
-
-  hexToPixel(q, s, size) {
-    const x = (Math.sqrt(3) * q + Math.sqrt(3) / 2 * s) * size;
-    const y = (3 / 2) * s * size;
-    const pixelCoord = { x: x, y: y };
-    return pixelCoord;
-  }
-
-  getStatus(q, s) {
-    const cell = this.universe.getCell(q, s);
-    return cell.alive;
-  }
-
-  getHeadcount() {
-    const headcount = this.neighborCoords.reduce((accum, coord) => {
-      return accum + this.getStatus(coord[0], coord[1]);
-    }, 0);
-    return headcount;
-  }
-
-  newStatus() {
-    const heads = this.getHeadcount();
-    let newStatus;
-    switch(this.alive) {
-      case 0:
-        if (heads === 4) {
-          newStatus = 1;} else {
-            newStatus = 0;
-          }
-        break;
-      case 1:
-        switch(heads) {
-          case 1:
-            newStatus = 2;
-            break;
-          case 2:
-            newStatus = 2;
-            break;
-          case 3:
-            newStatus = 2;
-            break;
-          case 4:
-            newStatus = 2;
-            break;
-          case 6:
-            newStatus = 2;
-            break;
-          default:
-            newStatus = 0;
-            break;
-          };
-        break;
-      case 2:
-        switch(heads) {
-          case 1:
-            newStatus = 2;
-            break;
-          case 2:
-            newStatus = 1;
-            break;
-          case 4:
-            newStatus = 1;
-            break;
-          default:
-            newStatus = 0;
-            break;
-        };
-        break;
-    };
-    // const updatedCell = new Cell(this.coord.q, this.coord.r, this.coord.s, this.universe, newStatus);
-    return newStatus;
-  }
-
-  getNeighborCoords(q, s) {
-    const neighbors = [];
-    NEIGHBORS.forEach(delta => {
-      const coord = [q + delta[0], s + delta[1]];
-      neighbors.push(coord);
-    });
-    return neighbors;
-  }
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Cell);
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const CONSTANTS = {
-  HEX_IN_ANGLE: (Math.PI * 2) / 6,
-  HEX_START_ANGLE: (Math.PI / 6),
-  TWO_PI: Math.PI * 2,
-  RUN: 'RUN',
-  RING: 'RING',
-  DEFAULT: 'DEFAULT',
-  INSPECT: 'INSPECT',
-  STAMPS: {
-
-  }
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (CONSTANTS);
 
 
 /***/ }),
@@ -532,7 +519,7 @@ const CONSTANTS = {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__universe__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__cell__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__constants__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__constants__ = __webpack_require__(0);
 
 
 
@@ -555,10 +542,10 @@ class Painter {
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
     this.mode = RUN;
-    this.stamp = null;
+    this.brush = null;
     this.eraser = 0;
     this.mouseOver = null;
-    this.stampQueue = [];
+    this.brushQueue = [];
 
     this.cursors = {
       RING: this.ringCursor.bind(this),
@@ -568,10 +555,10 @@ class Painter {
 
   plotCell(cell) {
     this.sketch.push();
-    if (cell.alive === 1) {
-      this.sketch.fill('yellow');
-    } else if (cell.alive === 2) {
-      this.sketch.fill('yellow');
+    if (cell.state === 1) {
+      this.sketch.fill('#1CA5B8');
+    } else if (cell.state === 2) {
+      this.sketch.fill('#FF404C');
     }
     this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y)
     this.sketch.pop();
@@ -589,7 +576,7 @@ class Painter {
   }
 
   renderCursor() {
-    this.stampQueue = [];
+    this.brushQueue = [];
 
     this.sketch.push();
     let cursor = this.cursors[DEFAULT];
@@ -605,8 +592,8 @@ class Painter {
       this.sketch.fill('rgba(255, 255, 255, .9)');
     }
 
-    if (this.stamp) {
-      cursor = this.cursors[this.stamp];
+    if (this.brush) {
+      cursor = this.cursors[this.brush];
     }
     if (this.outOfBounds()) {
       this.sketch.pop();
@@ -626,22 +613,22 @@ class Painter {
   ringCursor() {
 
     const pCursorCell = this.universe.getCellPixel(this.sketch.pmouseX, this.sketch.pmouseY);
-    const pStampCellCoords = pCursorCell.neighborCoords.map(coord => {
+    const pBrushCellCoords = pCursorCell.neighborCoords.map(coord => {
       const cell = this.universe.getCell(coord[0], coord[1]);
-      this.stampQueue.push(cell);
+      this.brushQueue.push(cell);
       this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
     })
 
     const cursorCell = this.universe.getCellPixel(this.sketch.mouseX, this.sketch.mouseY);
-    const stampCellCoords = cursorCell.neighborCoords.map(coord => {
+    const brushCellCoords = cursorCell.neighborCoords.map(coord => {
       const cell = this.universe.getCell(coord[0], coord[1]);
-      this.stampQueue.push(cell);
+      this.brushQueue.push(cell);
       this.drawHex(cell.pixelCoord.x, cell.pixelCoord.y);
     })
   }
 
-  setStamp() {
-    this.stampQueue.map(cell => {
+  setBrush() {
+    this.brushQueue.map(cell => {
       this.paintCell(cell.pixelCoord.x, cell.pixelCoord.y);
     });
   }
@@ -661,7 +648,7 @@ class Painter {
   renderGrid() {
     for (let i = 0; i < this.gridHeight; i++) {
       for (let j = 0; j < this.gridWidth; j++) {
-        if (!this.universe.grid[i][j].alive) { continue; }
+        if (!this.universe.grid[i][j].state) { continue; }
         this.sketch.push();
         this.plotCell(this.universe.grid[i][j]);
         this.sketch.pop();
@@ -670,12 +657,12 @@ class Painter {
   }
 
   paintCell(x, y) {
-    let status;
-    this.eraser ? (status = 0) : (status = 1);
+    let state;
+    this.eraser ? (state = 0) : (state = 1);
 
     this.sketch.push();
     this.sketch.fill('yellow');
-    this.universe.setCell(x, y, status);
+    this.universe.setCell(x, y, state);
     this.drawHex(x,y);
     this.sketch.pop();
   }
@@ -683,7 +670,7 @@ class Painter {
   render() {
     switch(this.mode) {
       case RUN:
-        this.universe.generationCycle();
+        this.universe.updateCellStates();
         this.renderGrid();
         break;
       default:
@@ -701,7 +688,7 @@ class Painter {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(0);
 
 
 const {
@@ -719,8 +706,8 @@ class Interface {
     this.startToggle = this.startToggle.bind(this);
     this.randomize = this.randomize.bind(this);
     this.clear = this.clear.bind(this);
-    this.setHexStamp = this.setHexStamp.bind(this);
-    this.setRingStamp = this.setRingStamp.bind(this);
+    this.setHexBrush = this.setHexBrush.bind(this);
+    this.setRingBrush = this.setRingBrush.bind(this);
     this.eraserToggle = this.eraserToggle.bind(this);
     this.setInspectMode = this.setInspectMode.bind(this);
     this.logActiveCells = this.logActiveCells.bind(this);
@@ -732,8 +719,8 @@ class Interface {
     this.playButton(parentId);
     this.clearButton(parentId);
     this.randomizeButton(parentId);
-    this.hexStampButton(parentId);
-    this.ringStampButton(parentId);
+    this.hexBrushButton(parentId);
+    this.ringBrushButton(parentId);
     this.eraserToggleButton(parentId);
 
     this.slider = this.sketch.createSlider(1, 60, 60);
@@ -768,14 +755,14 @@ class Interface {
     clearButton.mousePressed(this.clear).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
-  hexStampButton(parentId) {
-    const hexStampButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">brush</i><span>&nbsp;Plain Brush</span></span>');
-    hexStampButton.mousePressed(this.setHexStamp).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
+  hexBrushButton(parentId) {
+    const hexBrushButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">brush</i><span>&nbsp;Plain Brush</span></span>');
+    hexBrushButton.mousePressed(this.setHexBrush).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
-  ringStampButton(parentId) {
-    const ringStampButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">radio_button_unchecked</i><span>&nbsp;Ring Brush</span></span>');
-    ringStampButton.mousePressed(this.setRingStamp).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
+  ringBrushButton(parentId) {
+    const ringBrushButton = this.sketch.createButton('<span class="button-contents"><i class="material-icons">radio_button_unchecked</i><span>&nbsp;Ring Brush</span></span>');
+    ringBrushButton.mousePressed(this.setRingBrush).parent(parentId).mouseOver(this.mouseOver).mouseOut(this.mouseOut);
   }
 
   eraserToggleButton(parentId) {
@@ -806,12 +793,12 @@ class Interface {
     this.universe.clearGrid();
   }
 
-  setHexStamp() {
-    this.painter.stamp = null;
+  setHexBrush() {
+    this.painter.brush = null;
   }
 
-  setRingStamp() {
-    this.painter.stamp = RING;
+  setRingBrush() {
+    this.painter.brush = RING;
   }
 
   eraserToggle() {
@@ -820,7 +807,7 @@ class Interface {
 
   setInspectMode() {
     this.painter.mode = INSPECT;
-    this.painter.stamp = null;
+    this.painter.brush = null;
   }
 
   logActiveCells() {

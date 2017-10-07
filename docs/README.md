@@ -8,7 +8,7 @@ Conway's Game of Life (CGOL) is a well-known cellular automaton invented by math
 
 A cellular automaton consists of a regular grid of cells, with each cell having a finite number of states. At set time intervals, the state of each cell is updated according to a set of rules governed by the state of other cells in each cell's "neighborhood". When implemented visually, cellular automata can result in complex and beautiful patterns and animations, each with it's own personality.
 
-In Conway's Game of Life, each cell is either "alive" or "dead" and is affected by eight neighbors - those cells that are vertically, horizontally, or diagonally adjacent. At each time interval, each cell's state is updated according to the following rules:
+In Conway's Game of Life, each cell is either "state" or "dead" and is affected by eight neighbors - those cells that are vertically, horizontally, or diagonally adjacent. At each time interval, each cell's state is updated according to the following rules:
 
 1. Any live cell with fewer than two live neighbors dies.
 2. Any live cell with two or three live neighbors lives.
@@ -17,7 +17,7 @@ In Conway's Game of Life, each cell is either "alive" or "dead" and is affected 
 
 An initial pattern is created by assigning the state of each cell (randomly or in a desired shape) and then subsequent generations are created by applying the above rules simultaneously to every cell in the universe.
 
-Users of ConwayPainter create the seed state by "painting" on a canvas, using either a basic brush tool, or one of a set of pre-defined "stamps". These stamps are patterns that are known to have interesting visual effects or behavior.
+Users of ConwayPainter create the seed state by "painting" on a canvas, using either a basic brush tool, or one of a set of pre-defined "brushs". These brushs are patterns that are known to have interesting visual effects or behavior.
 
 ## Functionality and MVP
 
@@ -29,7 +29,7 @@ In ConwayPainter, users will be able to:
 
 ## Wireframes
 
-The app will consist of a single screen with the universe canvas, start/top/reset controls, a propagation speed slider, a stamp/brush palette, nav links to Github and LinkedIn, and an About modal.
+The app will consist of a single screen with the universe canvas, start/top/reset controls, a propagation speed slider, a brush/brush palette, nav links to Github and LinkedIn, and an About modal.
 
 ### [Wireframes](https://github.com/roblim/conwaypainter/blob/master/conway_painter_wireframe.png)
 
@@ -44,7 +44,7 @@ This project will be implemented with the following technologies:
 - universe.js: logic for creating/updating visual elements in CGOL universe (cells)
 - life_rules.js: logic for governing universe propagation rules
 - painter.js: logic for paint interface/user interaction with CGOL universe
-- palette.js logic for stamp palette
+- palette.js logic for brush palette
 
 ## Implementation Timeline
 
@@ -57,7 +57,7 @@ This project will be implemented with the following technologies:
 **Day 4:** Implement and style web UI
 
 ## Bonus Features
-- [ ] Users are also able to create their own custom stamp palette.
+- [ ] Users are also able to create their own custom brush palette.
 - [ ] Users can paint with colors.
 - [ ] Users can select from a palette of other life-like rules.
 - [ ] Incorporation of a sound component with a basic sequencer interface.

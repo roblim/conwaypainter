@@ -17,14 +17,11 @@ const p5Canvas = function( sketch ) {
   let uni = new Universe(width, height, cellSize, sketch);
   let ui = new Interface(sketch, uni);
 
-
-
   sketch.setup = function() {
     let canvas = sketch.createCanvas(width, height);
     canvas.position(-50, -50);
     sketch.cursor(sketch.CROSS);
     ui.interfaceSetup('ui-controls');
-
   };
 
   sketch.draw = function() {
@@ -66,9 +63,9 @@ const p5Canvas = function( sketch ) {
   };
 
   sketch.touchMoved = function() {
-    switch(uni.painter.stamp) {
+    switch(uni.painter.brush) {
       case RING:
-        uni.painter.setStamp();
+        uni.painter.setBrush();
         break;
       default:
         uni.painter.paintCell(
@@ -94,9 +91,9 @@ const p5Canvas = function( sketch ) {
         );
         break;
       default:
-        switch(uni.painter.stamp) {
+        switch(uni.painter.brush) {
           case RING:
-          uni.painter.setStamp();
+          uni.painter.setBrush();
           break;
           default:
           uni.painter.paintCell(
@@ -107,31 +104,14 @@ const p5Canvas = function( sketch ) {
         };
         break;
     }
-
   };
-
   sketch.mouseReleased = function() {
   };
 
-  // sketch.mouseClicked = function() {
-  //
-  //   switch(uni.painter.stamp) {
-  //     case RING:
-  //       uni.painter.setStamp();
-  //       break;
-  //     default:
-  //       uni.painter.paintCell(
-  //         sketch.mouseX,
-  //         sketch.mouseY
-  //         );
-  //       break;
-  //   };
-  // };
-
   sketch.mouseDragged = function() {
-    switch(uni.painter.stamp) {
+    switch(uni.painter.brush) {
       case RING:
-        uni.painter.setStamp();
+        uni.painter.setBrush();
         break;
       default:
         uni.painter.paintCell(
@@ -176,8 +156,6 @@ const p5Canvas = function( sketch ) {
         break;
     };
   };
-
-
 };
 
 var myp5 = new p5(p5Canvas, 'sketch');
