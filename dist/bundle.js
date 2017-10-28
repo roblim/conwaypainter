@@ -106,9 +106,18 @@ class Universe {
     this.cellSize = cellSize;
     this.gridWidth = Math.floor((width / cellSize) * 0.68);
     this.gridHeight = Math.floor((height / cellSize) * 0.7);
-    this.grid = this.generateGrid(seed);
-    this.tempGrid = this.generateGrid(seed);
     this.painter = new __WEBPACK_IMPORTED_MODULE_1__painter__["a" /* default */](this, sketch);
+
+    this.cellsToUpdate = [];
+    this.cellsToUpdateTemp = [];
+    this.cellsToRender = [];
+    this.cellsToRenderTemp = [];
+    this.grid = [];
+    this.tempGrid = [];
+    this.generateGrid(seed);
+
+    // this.grid = this.generateGrid(seed);
+    // this.tempGrid = this.generateGrid(seed);
   }
 
   generateGrid(seed) {
@@ -116,7 +125,8 @@ class Universe {
     let r;
     let qStart = 1;
     let rStart = 0;
-    let grid = [];
+    this.grid = [];
+    this.tempGrid = [];
     let tempRow = [];
 
     for (let i = 0; i < this.gridHeight; i++) {
@@ -131,22 +141,31 @@ class Universe {
 
       for (let j = 0; j < this.gridWidth; j++) {
         const s = (-q - r);
-        tempRow.push(new __WEBPACK_IMPORTED_MODULE_0__cell__["a" /* default */](q, r, s, this, seed));
+        let inputSeed = seed;
+        if (inputSeed === undefined) { inputSeed = Math.floor((Math.random() * 3)); }
+        const cell = new __WEBPACK_IMPORTED_MODULE_0__cell__["a" /* default */](q, r, s, this, inputSeed);
+        if (inputSeed === 1 || inputSeed === 2) {
+          this.cellsToRender.push([q, s]);
+          this.cellsToUpdate.push([q, s]);
+          this.cellsToUpdate.concat(cell.neighborCoords);
+        }
+        tempRow.push(cell);
         q++;
         r--;
       };
-      grid.push(tempRow);
+      this.grid.push(tempRow);
+      this.tempGrid.push(tempRow);
       tempRow = [];
     };
-    return grid;
+    // return grid;
   }
 
   clearGrid() {
-    this.grid = this.generateGrid(0);
+    this.generateGrid(0);
   }
 
   resetGridRandom() {
-    this.grid = this.generateGrid();
+    this.generateGrid();
   }
 
   // converts a rectangular pixel coordinate to an axial coordinate
@@ -179,7 +198,18 @@ class Universe {
 
   // returns cell at a given axial coordinate
   getCell(q, s) {
-    return this.grid[s][q + Math.floor(s / 2)];
+    const row = this.grid[s];
+    if (!row) {
+      return null;
+    } else {
+      return row[q + Math.floor(s / 2)];
+    }
+  }
+
+  getCellGridCoord(q, s) {
+    const rowIdx = s;
+    const colIdx = q + Math.floor(s / 2);
+    return { row: rowIdx, col: colIdx};
   }
 
   // returns cell at a given pixel coordinate
@@ -196,20 +226,51 @@ class Universe {
   }
 
   updateCellStates() {
-    for (let i = 0; i < this.gridHeight; i++) {
-      for (let j = 0; j < this.gridWidth; j++) {
-        if (i < 1 ||
-            i > (this.gridHeight - 2) ||
-            j < 1 ||
-            j > (this.gridWidth - 2)
-            ) {
-              this.tempGrid[i][j].state = 0;
-            } else {
-              this.tempGrid[i][j].state = this.grid[i][j].newState();
-            }
-      };
-    };
+    for (let i = 0; i < this.cellsToUpdate.length; i++) {
+      const updateCoord = this.cellsToUpdate[i];
+      const gridCoord = this.getCellGridCoord(updateCoord[0], updateCoord[1]);
+      const row = gridCoord.row;
+      const col = gridCoord.col;
+      const updateCell = this.grid[row][col];
+      let newState
+      if (row < 1 ||
+          row > (this.gridHeight - 2) ||
+          col < 1 ||
+          col > (this.gridWidth - 2)
+          ) {
+          newState = 0;
+        } else {
+          newState = updateCell.newState();
+
+        }
+      this.tempGrid[row][col].state = newState;
+      if (newState === 1 || newState === 2) {
+        this.cellsToUpdateTemp.push(updateCoord);
+        this.cellsToUpdateTemp.concat(updateCell.neighborCoords);
+        this.cellsToRenderTemp.push(updateCoord);
+      }
+    }
+    this.cellsToUpdate = this.cellsToUpdateTemp;
+    this.cellsToRender = this.cellsToRenderTemp;
+    this.cellsToUpdateTemp = [];
+    this.cellsToRenderTemp = [];
     this.grid = this.tempGrid;
+
+
+    // for (let i = 0; i < this.gridHeight; i++) {
+    //   for (let j = 0; j < this.gridWidth; j++) {
+    //     if (i < 1 ||
+    //         i > (this.gridHeight - 2) ||
+    //         j < 1 ||
+    //         j > (this.gridWidth - 2)
+    //         ) {
+    //           this.tempGrid[i][j].state = 0;
+    //         } else {
+    //           this.tempGrid[i][j].state = this.grid[i][j].newState();
+    //         }
+    //   };
+    // };
+    // this.grid = this.tempGrid;
   }
 
   logActiveCells() {
@@ -244,7 +305,7 @@ class Universe {
 const { NEIGHBORS } = __WEBPACK_IMPORTED_MODULE_0__constants__["a" /* default */];
 
 class Cell {
-  constructor(q, r, s, universe, state = Math.floor((Math.random() * 3) * .4)) {
+  constructor(q, r, s, universe, state) {
     this.coord = { q, r, s };
     this.state = state;
     this.universe = universe;
@@ -363,7 +424,7 @@ const {
 const p5Canvas = function( sketch ) {
   let width = sketch.windowWidth +50;
   let height = sketch.windowHeight + 50;
-  let cellSize = 8;
+  let cellSize = 10;
 
   let uni = new __WEBPACK_IMPORTED_MODULE_0__universe__["a" /* default */](width, height, cellSize, sketch);
   let ui = new __WEBPACK_IMPORTED_MODULE_2__interface__["a" /* default */](sketch, uni);
@@ -541,6 +602,7 @@ class Painter {
     this.cellSize = universe.cellSize;
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
+    this.cellsToRender = universe.cellsToRender;
     this.mode = RUN;
     this.brush = null;
     this.eraser = 0;
@@ -646,14 +708,26 @@ class Painter {
   }
 
   renderGrid() {
-    for (let i = 0; i < this.gridHeight; i++) {
-      for (let j = 0; j < this.gridWidth; j++) {
-        if (!this.universe.grid[i][j].state) { continue; }
-        this.sketch.push();
-        this.plotCell(this.universe.grid[i][j]);
-        this.sketch.pop();
-      };
+    for (let i = 0; i < this.universe.cellsToRender.length; i++) {
+
+      let cellCoord = this.universe.cellsToRender[i];
+
+      let cell = this.universe.getCell(cellCoord[0], cellCoord[1])
+
+      // if (!cell.state) { continue; }
+      this.sketch.push();
+      this.plotCell(cell)
+      this.sketch.pop();
     }
+
+    // for (let i = 0; i < this.gridHeight; i++) {
+    //   for (let j = 0; j < this.gridWidth; j++) {
+    //     if (!this.universe.grid[i][j].state) { continue; }
+    //     this.sketch.push();
+    //     this.plotCell(this.universe.grid[i][j]);
+    //     this.sketch.pop();
+    //   };
+    // }
   }
 
   paintCell(x, y) {

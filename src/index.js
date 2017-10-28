@@ -12,7 +12,7 @@ const {
 const p5Canvas = function( sketch ) {
   let width = sketch.windowWidth +50;
   let height = sketch.windowHeight + 50;
-  let cellSize = 8;
+  let cellSize = 10;
 
   let uni = new Universe(width, height, cellSize, sketch);
   let ui = new Interface(sketch, uni);

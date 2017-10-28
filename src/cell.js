@@ -3,7 +3,7 @@ import CONSTANTS from './constants';
 const { NEIGHBORS } = CONSTANTS;
 
 class Cell {
-  constructor(q, r, s, universe, state = Math.floor((Math.random() * 3) * .4)) {
+  constructor(q, r, s, universe, state) {
     this.coord = { q, r, s };
     this.state = state;
     this.universe = universe;

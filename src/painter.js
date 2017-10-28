@@ -19,6 +19,7 @@ class Painter {
     this.cellSize = universe.cellSize;
     this.gridWidth = universe.gridWidth;
     this.gridHeight = universe.gridHeight;
+    this.cellsToRender = universe.cellsToRender;
     this.mode = RUN;
     this.brush = null;
     this.eraser = 0;
@@ -124,14 +125,26 @@ class Painter {
   }
 
   renderGrid() {
-    for (let i = 0; i < this.gridHeight; i++) {
-      for (let j = 0; j < this.gridWidth; j++) {
-        if (!this.universe.grid[i][j].state) { continue; }
-        this.sketch.push();
-        this.plotCell(this.universe.grid[i][j]);
-        this.sketch.pop();
-      };
+    for (let i = 0; i < this.universe.cellsToRender.length; i++) {
+
+      let cellCoord = this.universe.cellsToRender[i];
+
+      let cell = this.universe.getCell(cellCoord[0], cellCoord[1])
+
+      // if (!cell.state) { continue; }
+      this.sketch.push();
+      this.plotCell(cell)
+      this.sketch.pop();
     }
+
+    // for (let i = 0; i < this.gridHeight; i++) {
+    //   for (let j = 0; j < this.gridWidth; j++) {
+    //     if (!this.universe.grid[i][j].state) { continue; }
+    //     this.sketch.push();
+    //     this.plotCell(this.universe.grid[i][j]);
+    //     this.sketch.pop();
+    //   };
+    // }
   }
 
   paintCell(x, y) {
