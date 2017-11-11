@@ -44,7 +44,9 @@ class Universe {
       for (let j = 0; j < this.gridWidth; j++) {
         const s = (-q - r);
         let inputSeed = seed;
-        if (inputSeed === undefined) { inputSeed = Math.floor((Math.random() * 3)); }
+        if (inputSeed === undefined) { 
+          inputSeed = Math.floor((Math.random() * 3));
+        }
         const cell = new Cell(q, r, s, this, inputSeed);
         if (inputSeed === 1 || inputSeed === 2) {
           this.cellsToRender.push([q, s]);
@@ -59,7 +61,6 @@ class Universe {
       this.tempGrid.push(tempRow);
       tempRow = [];
     };
-    // return grid;
   }
 
   clearGrid() {
@@ -142,8 +143,7 @@ class Universe {
           ) {
           newState = 0;
         } else {
-          newState = updateCell.newState();
-
+          newState = updateCell.newState();  
         }
       this.tempGrid[row][col].state = newState;
       if (newState === 1 || newState === 2) {

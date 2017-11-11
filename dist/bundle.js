@@ -142,7 +142,9 @@ class Universe {
       for (let j = 0; j < this.gridWidth; j++) {
         const s = (-q - r);
         let inputSeed = seed;
-        if (inputSeed === undefined) { inputSeed = Math.floor((Math.random() * 3)); }
+        if (inputSeed === undefined) { 
+          inputSeed = Math.floor((Math.random() * 3));
+        }
         const cell = new __WEBPACK_IMPORTED_MODULE_0__cell__["a" /* default */](q, r, s, this, inputSeed);
         if (inputSeed === 1 || inputSeed === 2) {
           this.cellsToRender.push([q, s]);
@@ -157,7 +159,6 @@ class Universe {
       this.tempGrid.push(tempRow);
       tempRow = [];
     };
-    // return grid;
   }
 
   clearGrid() {
@@ -241,7 +242,6 @@ class Universe {
           newState = 0;
         } else {
           newState = updateCell.newState();
-
         }
       this.tempGrid[row][col].state = newState;
       if (newState === 1 || newState === 2) {
@@ -697,11 +697,11 @@ class Painter {
 
   drawHex(x, y) {
     this.sketch.beginShape();
-    for (var a = HEX_START_ANGLE;
+    for (let a = HEX_START_ANGLE;
                   a < TWO_PI;
                   a += HEX_IN_ANGLE) {
-      var sx = x + Math.cos(a) * this.cellSize;
-      var sy = y + Math.sin(a) * this.cellSize;
+      let sx = x + Math.cos(a) * this.cellSize;
+      let sy = y + Math.sin(a) * this.cellSize;
       this.sketch.vertex(sx, sy);
     }
     this.sketch.endShape(this.sketch.CLOSE);

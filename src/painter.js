@@ -114,11 +114,11 @@ class Painter {
 
   drawHex(x, y) {
     this.sketch.beginShape();
-    for (var a = HEX_START_ANGLE;
+    for (let a = HEX_START_ANGLE;
                   a < TWO_PI;
                   a += HEX_IN_ANGLE) {
-      var sx = x + Math.cos(a) * this.cellSize;
-      var sy = y + Math.sin(a) * this.cellSize;
+      let sx = x + Math.cos(a) * this.cellSize;
+      let sy = y + Math.sin(a) * this.cellSize;
       this.sketch.vertex(sx, sy);
     }
     this.sketch.endShape(this.sketch.CLOSE);
