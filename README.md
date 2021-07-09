@@ -37,7 +37,7 @@ This project is implemented with the following technologies:
 
 ## Challenges
 
-That primary challenge of implementing Conway Painter was in dealing with the hexagonal grid. Due to the offset nature of a hexagonal grid, a typical rectangular coordinate system is unsuitable without modification (offsetting coordinates). Offsetting a rectangular coordinate system is complicated and tedious to manage, so a modified cubic/axial coordinate system was chosen.
+The primary challenge of implementing Conway Painter was in dealing with the hexagonal grid. Due to the offset nature of a hexagonal grid, a typical rectangular coordinate system is unsuitable without modification (offsetting coordinates). Offsetting a rectangular coordinate system is complicated and tedious to manage, so a modified cubic/axial coordinate system was chosen.
 
 Using cubic coordinates was necessary in implementing the neighbor polling logic (how cells determine who is in their neighborhood), but these coordinates are unsuitable for rendering purposes, where pixels are mapped according to a rectangular coordinate system. To deal with this, functions were implemented to interconvert between coordinate systems, properly generate and seed the universe grid, as well as functions to efficiently pull appropriate cells from the two-dimensional array used for implementing the grid.
 
